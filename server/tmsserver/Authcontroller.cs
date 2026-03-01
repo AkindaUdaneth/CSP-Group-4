@@ -5,7 +5,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using tmsserver.Data;
+using tmsserver.Data.Repositories;
 using tmsserver.Models;
+using tmsserver.Services;
+using AuthSvc = tmsserver.Services.IAuthorizationService;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -14,47 +17,68 @@ public class AuthController : ControllerBase
     private readonly IConfiguration _config;
     private readonly UserService _userService;
     private readonly ApplicationDbContext _context;
+    private readonly IUserRepository _userRepository;
+    private readonly IRegistrationRequestRepository _registrationRequestRepository;
+    private readonly AuthSvc _authorizationService;
 
-    public AuthController(IConfiguration config, UserService userService, ApplicationDbContext context)
+    public AuthController(
+        IConfiguration config,
+        UserService userService,
+        ApplicationDbContext context,
+        IUserRepository userRepository,
+        IRegistrationRequestRepository registrationRequestRepository,
+        AuthSvc authorizationService)
     {
         _config = config;
         _userService = userService;
         _context = context;
+        _userRepository = userRepository;
+        _registrationRequestRepository = registrationRequestRepository;
+        _authorizationService = authorizationService;
     }
 
     [HttpPost("login")]
-    public IActionResult Login([FromBody] LoginModel model)
+    public async Task<IActionResult> LoginAsync([FromBody] LoginModel model)
     {
         if (string.IsNullOrWhiteSpace(model.Username) || string.IsNullOrWhiteSpace(model.Password))
         {
             return BadRequest(new { message = "Username and password are required" });
         }
 
-        
-        User? user = _userService.FindUserByUsername(model.Username);
-        user ??= _userService.FindUserByEmail(model.Username);
-        user ??= _userService.FindUserByIdentityNumber(model.Username);
-
-        if (user == null || !_userService.ValidatePassword(model.Password, user.PasswordHash))
+        try
         {
-            return Unauthorized(new { message = "Invalid credentials" });
-        }
+            User? user = await _userRepository.GetUserByUsernameAsync(model.Username);
+            user ??= await _userRepository.GetUserByEmailAsync(model.Username);
+            user ??= await _userRepository.GetUserByIdentityNumberAsync(model.Username);
 
-        
-        if (user.Role == UserRole.PendingPlayer || !user.IsApproved)
+            if (user == null || !_userService.ValidatePassword(model.Password, user.PasswordHash))
+            {
+                return Unauthorized(new { message = "Invalid credentials" });
+            }
+
+            // Check if user is approved (only for non-admin users)
+            if (user.Role == UserRole.PendingPlayer || !user.IsApproved)
+            {
+                return Unauthorized(new { message = "Your account is not yet approved. Please wait for admin approval." });
+            }
+
+            var token = GenerateToken(user.Id.ToString(), user.Username, user.Role.ToString());
+            return Ok(new
+            {
+                token,
+                id = user.Id,
+                username = user.Username,
+                email = user.Email,
+                identityNumber = user.IdentityNumber,
+                role = user.Role.ToString(),
+                isApproved = user.IsApproved,
+                approvedAt = user.ApprovedAt
+            });
+        }
+        catch (Exception ex)
         {
-            return Unauthorized(new { message = "Your account is not yet approved. Please wait for admin approval." });
+            return StatusCode(500, new { message = "Error during login", error = ex.Message });
         }
-
-        var token = GenerateToken(user.Id.ToString(), user.Username, user.Role.ToString());
-        return Ok(new { 
-            token, 
-            id = user.Id,
-            username = user.Username, 
-            email = user.Email,
-            identityNumber = user.IdentityNumber,
-            role = user.Role.ToString()
-        });
     }
 
     [HttpPost("signup")]
@@ -106,27 +130,36 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("pending-registrations")]
-    [Authorize]
+    [Authorize(Policy = "AdminOnly")]
     public async Task<IActionResult> GetPendingRegistrations()
     {
         try
         {
-            var pendingUsers = await _userService.GetPendingRegistrationsAsync();
-            return Ok(pendingUsers);
+            var pendingUsers = await _authorizationService.GetPendingApprovalAsync();
+            var result = pendingUsers.Select(u => new
+            {
+                u.Id,
+                u.Username,
+                u.Email,
+                u.IdentityNumber,
+                u.CreatedAt,
+                Status = "Pending Approval"
+            }).ToList();
+
+            return Ok(new { success = true, data = result, count = result.Count });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = ex.Message });
+            return StatusCode(500, new { message = "Error fetching pending registrations", error = ex.Message });
         }
     }
 
     [HttpPost("approve-registration/{userId}")]
-    [Authorize]
+    [Authorize(Policy = "ApproveRegistrations")]
     public async Task<IActionResult> ApproveRegistration(int userId)
     {
         try
         {
-            
             var adminIdClaim = User.FindFirst("sub") 
                 ?? User.FindFirst(ClaimTypes.NameIdentifier)
                 ?? User.FindFirst("userId");
@@ -136,29 +169,50 @@ public class AuthController : ControllerBase
                 return Unauthorized(new { message = "Invalid admin info" });
             }
 
-            
-            var admin = _userService.FindUserById(adminId);
+            var admin = await _userRepository.GetUserByIdAsync(adminId);
             if (admin?.Role != UserRole.Admin && admin?.Role != UserRole.SystemAdmin)
             {
-                return Forbid();
+                return Forbid("You don't have permission to approve registrations");
             }
 
-            await _userService.ApproveRegistrationAsync(userId, adminId);
-            return Ok(new { message = "Registration approved successfully" });
+            var approved = await _authorizationService.ApproveUserAsync(userId, adminId);
+            if (approved)
+            {
+                var user = await _userRepository.GetUserByIdAsync(userId);
+                return Ok(new
+                {
+                    success = true,
+                    message = "Player registration approved successfully",
+                    user = new
+                    {
+                        user?.Id,
+                        user?.Username,
+                        user?.Email,
+                        user?.Role,
+                        user?.IsApproved
+                    }
+                });
+            }
+
+            return BadRequest(new { success = false, message = "Failed to approve registration" });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = ex.Message });
+            return StatusCode(500, new { message = "Error approving registration", error = ex.Message });
         }
     }
 
     [HttpPost("reject-registration/{userId}")]
-    [Authorize]
+    [Authorize(Policy = "ApproveRegistrations")]
     public async Task<IActionResult> RejectRegistration(int userId, [FromBody] RejectionModel model)
     {
         try
         {
-            
+            if (string.IsNullOrWhiteSpace(model?.Reason))
+            {
+                return BadRequest(new { message = "Rejection reason is required" });
+            }
+
             var adminIdClaim = User.FindFirst("sub") 
                 ?? User.FindFirst(ClaimTypes.NameIdentifier)
                 ?? User.FindFirst("userId");
@@ -168,19 +222,68 @@ public class AuthController : ControllerBase
                 return Unauthorized(new { message = "Invalid admin info" });
             }
 
-         
-            var admin = _userService.FindUserById(adminId);
+            var admin = await _userRepository.GetUserByIdAsync(adminId);
             if (admin?.Role != UserRole.Admin && admin?.Role != UserRole.SystemAdmin)
             {
-                return Forbid();
+                return Forbid("You don't have permission to reject registrations");
             }
 
-            await _userService.RejectRegistrationAsync(userId, adminId, model?.Reason);
-            return Ok(new { message = "Registration rejected successfully" });
+            var rejected = await _authorizationService.RejectUserAsync(userId, adminId, model.Reason);
+            if (rejected)
+            {
+                return Ok(new
+                {
+                    success = true,
+                    message = "Player registration rejected",
+                    reason = model.Reason
+                });
+            }
+
+            return BadRequest(new { success = false, message = "Failed to reject registration" });
         }
         catch (Exception ex)
         {
-            return BadRequest(new { message = ex.Message });
+            return StatusCode(500, new { message = "Error rejecting registration", error = ex.Message });
+        }
+    }
+
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<IActionResult> GetCurrentUser()
+    {
+        try
+        {
+            var userIdClaim = User.FindFirst("sub") ?? User.FindFirst(ClaimTypes.NameIdentifier);
+            if (!int.TryParse(userIdClaim?.Value, out int userId))
+            {
+                return Unauthorized(new { message = "Unable to identify user" });
+            }
+
+            var user = await _userRepository.GetUserByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound(new { message = "User not found" });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                user = new
+                {
+                    user.Id,
+                    user.Username,
+                    user.Email,
+                    user.IdentityNumber,
+                    user.Role,
+                    user.IsApproved,
+                    user.CreatedAt,
+                    user.ApprovedAt
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error fetching user info", error = ex.Message });
         }
     }
 
