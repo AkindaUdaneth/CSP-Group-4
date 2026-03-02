@@ -22,6 +22,30 @@ public class AuthController : ControllerBase
         _context = context;
     }
 
+    [HttpGet("health")]
+    public IActionResult Health()
+    {
+        try
+        {
+            var dbCanConnect = _context.Database.CanConnect();
+            return Ok(new
+            {
+                status = "Healthy",
+                timestampUtc = DateTime.UtcNow,
+                database = dbCanConnect ? "Up" : "Down"
+            });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                status = "Unhealthy",
+                timestampUtc = DateTime.UtcNow,
+                error = ex.Message
+            });
+        }
+    }
+
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginModel model)
     {

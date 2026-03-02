@@ -2,6 +2,22 @@
   "version": 3,
   "targets": {
     "net10.0": {
+      "AspNetCore.HealthChecks.MySql/8.0.1": {
+        "type": "package",
+        "dependencies": {
+          "MySqlConnector": "2.3.1"
+        },
+        "compile": {
+          "lib/net6.0/HealthChecks.MySql.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/HealthChecks.MySql.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Humanizer.Core/2.14.1": {
         "type": "package",
         "compile": {
@@ -809,6 +825,23 @@
     }
   },
   "libraries": {
+    "AspNetCore.HealthChecks.MySql/8.0.1": {
+      "sha512": "00M4GPuQBLiJjj1q89DSJ0HVnMsArHKhlGGStAAubv9y/yGRwcvd259Q6yvP9dDVm/zDDL8/tmK5WvZEQN9L8g==",
+      "type": "package",
+      "path": "aspnetcore.healthchecks.mysql/8.0.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "aspnetcore.healthchecks.mysql.8.0.1.nupkg.sha512",
+        "aspnetcore.healthchecks.mysql.nuspec",
+        "icon.png",
+        "lib/net6.0/HealthChecks.MySql.dll",
+        "lib/net6.0/HealthChecks.MySql.xml",
+        "lib/netstandard2.0/HealthChecks.MySql.dll",
+        "lib/netstandard2.0/HealthChecks.MySql.xml"
+      ]
+    },
     "Humanizer.Core/2.14.1": {
       "sha512": "lQKvtaTDOXnoVJ20ibTuSIOf2i0uO0MPbDhd1jm238I+U/2ZnRENj0cktKZhtchBMtCUSRQ5v4xBCUbKNmyVMw==",
       "type": "package",
@@ -2392,6 +2425,7 @@
   },
   "projectFileDependencyGroups": {
     "net10.0": [
+      "AspNetCore.HealthChecks.MySql >= 8.0.1",
       "Microsoft.AspNetCore.Authentication.JwtBearer >= 9.0.0",
       "Microsoft.AspNetCore.OpenApi >= 10.0.3",
       "Microsoft.EntityFrameworkCore >= 9.0.0",
@@ -2402,24 +2436,32 @@
     ]
   },
   "packageFolders": {
-    "/Users/omindu/.nuget/packages/": {}
+    "C:\\Users\\Heshan Ranwala\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/omindu/Documents/sliit/cspproject/CSP-Group-4/server/tmsserver/tmsserver.csproj",
+      "projectUniqueName": "c:\\Users\\Heshan Ranwala\\Desktop\\CSP\\Main Project\\Scrum 16\\CSP-Group-4\\server\\tmsserver\\tmsserver.csproj",
       "projectName": "tmsserver",
-      "projectPath": "/Users/omindu/Documents/sliit/cspproject/CSP-Group-4/server/tmsserver/tmsserver.csproj",
-      "packagesPath": "/Users/omindu/.nuget/packages/",
-      "outputPath": "/Users/omindu/Documents/sliit/cspproject/CSP-Group-4/server/tmsserver/obj/",
+      "projectPath": "c:\\Users\\Heshan Ranwala\\Desktop\\CSP\\Main Project\\Scrum 16\\CSP-Group-4\\server\\tmsserver\\tmsserver.csproj",
+      "packagesPath": "C:\\Users\\Heshan Ranwala\\.nuget\\packages\\",
+      "outputPath": "c:\\Users\\Heshan Ranwala\\Desktop\\CSP\\Main Project\\Scrum 16\\CSP-Group-4\\server\\tmsserver\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/Users/omindu/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\Heshan Ranwala\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -2444,6 +2486,10 @@
       "net10.0": {
         "targetAlias": "net10.0",
         "dependencies": {
+          "AspNetCore.HealthChecks.MySql": {
+            "target": "Package",
+            "version": "[8.0.1, )"
+          },
           "Microsoft.AspNetCore.Authentication.JwtBearer": {
             "target": "Package",
             "version": "[9.0.0, )"
@@ -2492,7 +2538,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.103/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.AspNetCore": "(,10.0.32767]",
           "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",

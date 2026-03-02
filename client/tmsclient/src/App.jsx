@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminSystemHealth from './pages/AdminSystemHealth';
 import ProtectedRoute from './pages/ProtectedRoute';
 import { authService } from './services/authService';
 import './App.css';
@@ -43,6 +44,14 @@ function App() {
           element={
             <ProtectedRoute>
               <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/health"
+          element={
+            <ProtectedRoute>
+              <AdminSystemHealth />
             </ProtectedRoute>
           }
         />

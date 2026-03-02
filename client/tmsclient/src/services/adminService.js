@@ -55,4 +55,32 @@ export const adminService = {
 
     return await response.json();
   },
+
+  getSystemHealth: async () => {
+    try {
+      const response = await fetch('http://localhost:5011/health', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        // Backend is reachable but reports a problem (e.g. DB down)
+        return {
+          status: data.status || 'Unhealthy',
+          uptimeSeconds: data.uptimeSeconds || 0,
+          checks: data.checks || [],
+          httpStatus: response.status,
+        };
+      }
+
+      return data;
+    } catch (err) {
+      // Network or CORS error – bubble up as a real failure
+      throw new Error('Failed to fetch system health');
+    }
+  },
 };

@@ -1,11 +1,17 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
 using Scalar.AspNetCore;
+using System.Text;
+using System.Text.Json;
 using tmsserver.Data;
+using tmsserver.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var startupTime = DateTime.UtcNow;
 
 builder.Services.AddControllers();
 
@@ -16,6 +22,15 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
 );
+
+// Health checks (database + custom memory)
+builder.Services
+    .AddHealthChecks()
+    .AddMySql(
+        connectionString!,
+        name: "mysql",
+        failureStatus: HealthStatus.Unhealthy)
+    .AddCheck<MemoryHealthCheck>("memory");
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
@@ -69,6 +84,33 @@ app.UseCors("AllowLocalhost");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// /health endpoint with detailed JSON output
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    ResponseWriter = async (context, report) =>
+    {
+        context.Response.ContentType = "application/json; charset=utf-8";
+
+        var uptime = DateTime.UtcNow - startupTime;
+
+        var result = new
+        {
+            status = report.Status.ToString(),
+            uptimeSeconds = (long)uptime.TotalSeconds,
+            checks = report.Entries.Select(entry => new
+            {
+                name = entry.Key,
+                status = entry.Value.Status.ToString(),
+                description = entry.Value.Description,
+                durationMilliseconds = entry.Value.Duration.TotalMilliseconds,
+                data = entry.Value.Data
+            })
+        };
+
+        await context.Response.WriteAsync(JsonSerializer.Serialize(result));
+    }
+});
 
 app.MapControllers();
 

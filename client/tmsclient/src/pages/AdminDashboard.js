@@ -81,6 +81,10 @@ export default function AdminDashboard() {
         React.createElement('div', { className: 'nav-right' },
           React.createElement('span', { className: 'welcome-text' }, `Welcome, ${username} (${role})`),
           React.createElement('button', { 
+            onClick: () => navigate('/admin/health'), 
+            className: 'health-btn' 
+          }, 'System Health'),
+          React.createElement('button', { 
             onClick: () => navigate('/dashboard'), 
             className: 'back-btn' 
           }, 'Back to Dashboard'),

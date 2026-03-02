@@ -173,6 +173,39 @@
   box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
 }
 
+.system-health-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 480px;
+  color: #000000;
+}
+
+.health-status {
+  font-size: 1.4rem;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 999px;
+  display: inline-block;
+  margin-bottom: 16px;
+}
+
+.health-status-ok {
+  background-color: #e8f8f5;
+  color: #000000;
+}
+
+.health-status-bad {
+  background-color: #fdecea;
+  color: #000000;
+}
+
+.health-details p {
+  margin: 4px 0;
+  color: #000000;
+}
+
 @media (max-width: 768px) {
   .nav-content {
     flex-direction: column;
