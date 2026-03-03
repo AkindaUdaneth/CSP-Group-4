@@ -28,9 +28,9 @@ jobs:
         run: dotnet test tests/UnitTests/UnitTests.csproj --configuration Release --logger "junit;LogFileName=test-results.xml"
 
       - name: Upload Test Results
-        # This step saves the file so you can download it for your viva
-        if: always() # Ensures results are uploaded even if a test fails
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: unit-test-results
-          path: tests/UnitTests/artifacts/test-results.xml
+          # Using the wildcard helps find the file even if the path shifts slightly
+          path: tests/UnitTests/TestResults/*.xml
