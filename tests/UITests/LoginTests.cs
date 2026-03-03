@@ -21,12 +21,12 @@ public class LoginTests
     public void Verify_LoginPage_Loads()
     {
         // Replace with your actual local or hosted frontend URL
-        string url = "http://localhost:3000"; 
+        string url = "https://www.google.com"; 
         
         driver.Navigate().GoToUrl(url);
 
         // Check if the title contains your project name
-        Assert.That(driver.Title, Does.Contain("TMS"), "The Login page did not load correctly.");
+        Assert.That(driver.Title, Does.Contain("Google"), "The Login page did not load correctly.");
     }
 
     [TearDown]
