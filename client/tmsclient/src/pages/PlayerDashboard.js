@@ -1,17 +1,31 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../services/authService';
-import '../styles/Dashboard.css';
+import { useAuth } from '../contexts/AuthContext';
+import '../styles/PlayerDashboard.css';
+
+function isAdminRole(role) {
+  const normalizedRole = String(role || '').trim().toLowerCase();
+  return normalizedRole === 'admin' || normalizedRole === 'systemadmin';
+}
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const username = authService.getUsername();
-  const role = localStorage.getItem('role');
-  const isAdmin = role === 'Admin' || role === 'SystemAdmin';
+  const auth = useAuth();
+  const username = auth.user?.username || '';
+  const role = auth.user?.role;
+  const isAdmin = isAdminRole(role);
+
+  useEffect(() => {
+    if (isAdmin) {
+      navigate('/admin', { replace: true });
+    }
+  }, [isAdmin, navigate]);
+
+  if (isAdmin) return null;
 
   const handleLogout = () => {
-    authService.logout();
-    navigate('/login');
+    auth.logout();
+    navigate('/login', { replace: true });
   };
 
   return React.createElement('div', { className: 'dashboard-container' },
@@ -33,12 +47,12 @@ export default function Dashboard() {
       React.createElement('p', null, 'Welcome to the Tennis Management System!'),
       React.createElement('div', { className: 'dashboard-grid' },
         React.createElement('div', { className: 'dashboard-card' },
-          React.createElement('h3', null, 'Users'),
-          React.createElement('p', null, 'Manage users')
+          React.createElement('h3', null, 'Practice'),
+          React.createElement('p', null, 'Practice schedule')
         ),
         React.createElement('div', { className: 'dashboard-card' },
           React.createElement('h3', null, 'Tournaments'),
-          React.createElement('p', null, 'Manage tournaments')
+          React.createElement('p', null, 'Tournaments')
         ),
         React.createElement('div', { className: 'dashboard-card' },
           React.createElement('h3', null, 'Matches'),
@@ -46,7 +60,7 @@ export default function Dashboard() {
         ),
         React.createElement('div', { className: 'dashboard-card' },
           React.createElement('h3', null, 'Players'),
-          React.createElement('p', null, 'Manage players')
+          React.createElement('p', null, 'Player profile')
         )
       )
     )
