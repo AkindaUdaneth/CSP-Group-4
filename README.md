@@ -71,3 +71,26 @@ The Swagger API documentation will be available at http://localhost:<port>/swagg
    `REACT_APP_API_URL=http://localhost:<backend-port>/api`
 4. Start the React development server:
    `npm start`
+
+---
+
+## Testing
+
+**Unit Tests (Backend):** Navigate to the /tests/Backend.Tests directory and run: dotnet test
+
+**End-to-End Tests (Selenium):** Ensure the application is running locally. Navigate to /tests/E2E and execute the test suite to verify UI workflows.
+
+**Load Testing (JMeter):** Open the /tests/LoadTesting/Attendance_Spike.jmx file in the Apache JMeter GUI to simulate concurrent user traffic.
+
+---
+
+## Git Branching Strategy
+
+To maintain a clean and stable repository, all team members must follow this strict branching workflow:
+
+* main: Production-ready code only. Do not commit directly to this branch.
+* develop: The primary integration branch.
+* feature/<feature-name>: Create these branches off develop for new user stories (e.g., feature/tournament-bracket).
+* testing/<: For fixing issues found during QA.
+
+Pull Request Process: All code merged into develop or main requires a Pull Request (PR). GitHub Actions will automatically run the build and unit test steps. The PR must pass all checks and be reviewed by at least one other team member before merging.
