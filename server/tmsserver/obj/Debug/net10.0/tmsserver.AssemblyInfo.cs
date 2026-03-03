@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("tmsserver")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cec31a09a57e63474328afb8ef3af7c868ee1ac0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+85a2088d98716b036fb4dfd36a23e3718ae81bff")]
 [assembly: System.Reflection.AssemblyProductAttribute("tmsserver")]
 [assembly: System.Reflection.AssemblyTitleAttribute("tmsserver")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
