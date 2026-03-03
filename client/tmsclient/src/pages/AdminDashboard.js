@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../services/authService';
-import { adminService } from '../services/adminService';
+import { useAuth } from '../contexts/AuthContext';
+import { API_ENDPOINTS } from '../config/api';
 import '../styles/AdminDashboard.css';
+
+const API_URL = API_ENDPOINTS.ADMIN;
+
+function isAdminRole(role) {
+  const normalizedRole = String(role || '').trim().toLowerCase();
+  return normalizedRole === 'admin' || normalizedRole === 'systemadmin';
+}
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
