@@ -17,17 +17,19 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Restore & Build Backend
-        # Corrected: Using the .sln in the root
-        run: |
-          dotnet restore CSP-Group-4.sln
-          dotnet build CSP-Group-4.sln --configuration Release
+      - name: Restore
+        # Using **/*.sln tells GitHub to find the solution file anywhere in the repo
+        run: dotnet restore **/*.sln
+
+      - name: Build
+        run: dotnet build **/*.sln --configuration Release --no-restore
 
       - name: Run Unit Tests
-        # Corrected: Path to your UnitTests project based on your image
-        run: dotnet test tests/UnitTests/UnitTests.csproj --configuration Release
+        # This finds your UnitTests.csproj regardless of the exact folder path
+        run: dotnet test tests/UnitTests/*.csproj --configuration Release --no-build
 
       - name: Build Backend Docker Image
-        # Corrected: Build context is the server/tmsserver folder where your Dockerfile sits
+        # Using the exact path from your screenshot
         run: |
-          docker build -t tmsserver:develop ./server/tmsserver
+          cd server/tmsserver
+          docker build -t tmsserver:develop .
