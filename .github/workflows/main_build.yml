@@ -24,13 +24,14 @@ jobs:
           dotnet build server/tmsserver/CSP-Group-4.sln --configuration Release
 
       - name: Run Unit Tests
-        # Added a logger to create a .xml result file
-        run: dotnet test tests/UnitTests/UnitTests.csproj --configuration Release --logger "junit;LogFileName=test-results.xml"
+        # We use the built-in "html" friendly name
+        run: dotnet test tests/UnitTests/UnitTests.csproj --configuration Release --logger "html;LogFileName=TestReport.html"
 
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: unit-test-results
-          # Using the wildcard helps find the file even if the path shifts slightly
-          path: tests/UnitTests/TestResults/*.xml
+          name: Viva-QA-Report
+          # .NET usually places the HTML file in a timestamped folder inside TestResults
+          # Using ** helps the runner find it regardless of the folder name
+          path: tests/UnitTests/TestResults/**/*.html
