@@ -1,19 +1,20 @@
-# Use SDK to build
+# STAGE 1: Build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Copy and restore based on the backend folder structure
-COPY *.sln .
-COPY src/*.csproj ./src/
+# Copy the project file from the current directory (server/tmsserver)
+COPY tmsserver.csproj .
 RUN dotnet restore
 
-# Copy everything else and publish
+# Copy everything else in the server/tmsserver folder
 COPY . .
-RUN dotnet publish src/*.csproj -c Release -o /app/publish
+RUN dotnet publish tmsserver.csproj -c Release -o /app/publish
 
-# Final Runtime Image
+# STAGE 2: Runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
+
 EXPOSE 80
-ENTRYPOINT ["dotnet", "YourBackendApp.dll"]
+# Matches the name of your compiled output
+ENTRYPOINT ["dotnet", "tmsserver.dll"]
