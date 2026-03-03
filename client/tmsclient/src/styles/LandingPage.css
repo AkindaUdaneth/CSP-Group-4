@@ -1,0 +1,72 @@
+.landing-container {
+  font-family: Arial, sans-serif;
+  background-color: #FFFFFF;
+  min-height: 100vh;
+}
+
+.hero {
+  text-align: center;
+  padding: 4rem 2rem;
+  background-color: #f4f6f9;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  color: #000080;
+  margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: #4a5568;
+}
+
+.main-content {
+  padding: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.section-container {
+  margin-top: 2rem;
+  margin-bottom: 4rem;
+}
+
+.section-title {
+  text-align: center;
+  color: #000080;
+  margin-bottom: 2rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Card Styling with Hover Effect */
+.practice-card, .leadership-card {
+  background-color: #FFFFFF;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  border-top: 4px solid #FF5C00;
+  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth animation */
+}
+
+.practice-card:hover, .leadership-card:hover {
+  transform: translateY(-5px); /* Lifts the card up slightly */
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1); /* Deepens the shadow */
+}
+
+.card-title {
+  color: #000080;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.contact-text {
+  font-size: 0.9rem;
+  color: #4a5568;
+  margin-top: 0.5rem;
+}
