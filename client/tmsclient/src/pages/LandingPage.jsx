@@ -1,5 +1,6 @@
 import React from 'react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import '../styles/LandingPage.css'; // Importing the new external stylesheet
 
 const LandingPage = () => {
@@ -60,6 +61,7 @@ const LandingPage = () => {
           </div>
         </section>
       </main>
+      <Footer /> {/* Add the footer here */}
     </div>
   );
 };

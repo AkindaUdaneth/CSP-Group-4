@@ -2,6 +2,26 @@
   font-family: Arial, sans-serif;
   background-color: #FFFFFF;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column; /* Helps with footer positioning */
+  position: relative;
+  z-index: 1;
+}
+
+/* The Watermark Overlay */
+.landing-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('../assets/tennis-logo.png'); /* The Golden Rally logo */
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 100%; /* Adjust this percentage to make the logo larger or smaller */
+  opacity: 0.05; /* Keeps it very faint so text is readable */
+  z-index: -1;
 }
 
 .hero {
@@ -38,25 +58,30 @@
   margin-bottom: 2rem;
 }
 
+/* Replace the old .grid block with this: */
 .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; /* Centers the cards horizontally */
+  gap: 2rem;
 }
 
-/* Card Styling with Hover Effect */
+/* Update the card constraints so they fit nicely side-by-side */
 .practice-card, .leadership-card {
+  flex: 1; /* Allows cards to stretch evenly */
+  min-width: 250px; 
+  max-width: 300px; /* Prevents the 2 leadership cards from getting too wide */
   background-color: #FFFFFF;
   padding: 1.5rem;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.05);
   border-top: 4px solid #FF5C00;
-  transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth animation */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .practice-card:hover, .leadership-card:hover {
-  transform: translateY(-5px); /* Lifts the card up slightly */
-  box-shadow: 0 8px 15px rgba(0,0,0,0.1); /* Deepens the shadow */
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
 }
 
 .card-title {
