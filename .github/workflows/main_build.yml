@@ -18,13 +18,16 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore & Build Backend
+        # Points to the solution file inside the server folder
         run: |
           dotnet restore server/*.sln
           dotnet build server/*.sln --configuration Release
 
       - name: Run Unit Tests
+        # Ensure this path matches where you initialized your NUnit project
         run: dotnet test tests/UnitTests/*.csproj --configuration Release
 
       - name: Build Backend Docker Image
+        # Tells Docker to look inside the 'server' folder for the Dockerfile
         run: |
           docker build -t my-backend:develop ./server
