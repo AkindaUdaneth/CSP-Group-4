@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\hesha\\Desktop\\CSP\\Main Project\\CSP-Group-4\\tests\\UnitTests\\UnitTests.csproj": {}
+    "C:\\Users\\hesha\\Desktop\\CSP\\Main Project\\CSP-Group-4\\tests\\UITests\\UITests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\hesha\\Desktop\\CSP\\Main Project\\CSP-Group-4\\tests\\UnitTests\\UnitTests.csproj": {
+    "C:\\Users\\hesha\\Desktop\\CSP\\Main Project\\CSP-Group-4\\tests\\UITests\\UITests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\hesha\\Desktop\\CSP\\Main Project\\CSP-Group-4\\tests\\UnitTests\\UnitTests.csproj",
-        "projectName": "UnitTests",
-        "projectPath": "C:\\Users\\hesha\\Desktop\\CSP\\Main Project\\CSP-Group-4\\tests\\UnitTests\\UnitTests.csproj",
+        "projectUniqueName": "C:\\Users\\hesha\\Desktop\\CSP\\Main Project\\CSP-Group-4\\tests\\UITests\\UITests.csproj",
+        "projectName": "UITests",
+        "projectPath": "C:\\Users\\hesha\\Desktop\\CSP\\Main Project\\CSP-Group-4\\tests\\UITests\\UITests.csproj",
         "packagesPath": "C:\\Users\\hesha\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\hesha\\Desktop\\CSP\\Main Project\\CSP-Group-4\\tests\\UnitTests\\obj\\",
+        "outputPath": "C:\\Users\\hesha\\Desktop\\CSP\\Main Project\\CSP-Group-4\\tests\\UITests\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\hesha\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -44,29 +44,33 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
-            "JunitXml.TestLogger": {
-              "target": "Package",
-              "version": "[8.0.0, )"
-            },
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
-              "version": "[17.8.0, )"
+              "version": "[17.14.0, )"
             },
             "NUnit": {
               "target": "Package",
-              "version": "[3.14.0, )"
+              "version": "[4.3.2, )"
             },
             "NUnit.Analyzers": {
               "target": "Package",
-              "version": "[3.9.0, )"
+              "version": "[4.7.0, )"
             },
             "NUnit3TestAdapter": {
               "target": "Package",
-              "version": "[4.5.0, )"
+              "version": "[5.0.0, )"
+            },
+            "Selenium.WebDriver": {
+              "target": "Package",
+              "version": "[4.41.0, )"
+            },
+            "Selenium.WebDriver.ChromeDriver": {
+              "target": "Package",
+              "version": "[145.0.7632.11700, )"
             },
             "coverlet.collector": {
               "target": "Package",
-              "version": "[6.0.0, )"
+              "version": "[6.0.4, )"
             }
           },
           "imports": [
