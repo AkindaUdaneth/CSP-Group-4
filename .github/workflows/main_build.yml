@@ -19,8 +19,8 @@ jobs:
 
       - name: Restore & Build Backend
         run: |
-          dotnet restore backend/*.sln
-          dotnet build backend/*.sln --configuration Release
+          dotnet restore *.sln
+          dotnet build *.sln --configuration Release
 
       - name: Run Unit Tests
         run: dotnet test tests/UnitTests/*.csproj --configuration Release
