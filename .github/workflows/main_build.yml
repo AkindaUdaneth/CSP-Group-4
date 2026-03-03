@@ -19,12 +19,12 @@ jobs:
 
       - name: Restore & Build Backend
         run: |
-          dotnet restore *.sln
-          dotnet build *.sln --configuration Release
+          dotnet restore server/*.sln
+          dotnet build server/*.sln --configuration Release
 
       - name: Run Unit Tests
         run: dotnet test tests/UnitTests/*.csproj --configuration Release
 
       - name: Build Backend Docker Image
         run: |
-          docker build -t my-backend:develop ./backend
+          docker build -t my-backend:develop ./server
