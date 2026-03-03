@@ -2,6 +2,11 @@
 
 **Group:** Group 04
 **Module:** SE3022 Case Study Project (Year 3 Semester 1)
+**Members:**
+   IT23750210 - K.H.G.A.Udaneth
+   IT23575776 - M.S.A.O.Kumara
+   IT23645684 - V.N.Jayasinghe
+   IT23575608 - H.W.Ranwala
 
 ---
 
