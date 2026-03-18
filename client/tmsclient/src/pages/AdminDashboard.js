@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import TournamentManagement from '../components/TournamentManagement';
+import TournamentCalendar from '../components/TournamentCalendar';
 
 import { API_ENDPOINTS } from '../config/api';
 import '../styles/AdminDashboard.css';
@@ -21,10 +23,12 @@ export default function AdminDashboard() {
   const username = auth.user?.username || '';
   const role = auth.user?.role;
 
+  const [activeTab, setActiveTab] = useState('tournaments');
   const [pendingRequests, setPendingRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [tournamentRefresh, setTournamentRefresh] = useState(0);
 
   useEffect(() => {
 
@@ -138,6 +142,10 @@ export default function AdminDashboard() {
     navigate('/login');
   }
 
+  function handleTournamentAdded() {
+    setTournamentRefresh(prev => prev + 1);
+  }
+
   return React.createElement(
     'div',
     { className: 'admin-dashboard-container' },
@@ -167,62 +175,102 @@ export default function AdminDashboard() {
     ),
 
     React.createElement('div', { className: 'admin-content' },
-      React.createElement('h2', null, 'Pending Registration Requests'),
-
-      error && React.createElement('div', { className: 'error-message' }, error),
-      successMessage && React.createElement('div', { className: 'success-message' }, successMessage),
-
-      loading
-        ? React.createElement('div', { className: 'loading' }, 'Loading...')
-        : pendingRequests.length === 0
-          ? React.createElement('div', { className: 'no-requests' },
-            React.createElement('p', null, 'No pending registration requests')
+      React.createElement('div', { className: 'tabs-container' },
+        React.createElement('div', { className: 'tabs-nav' },
+          React.createElement('button',
+            {
+              className: `tab-button ${activeTab === 'tournaments' ? 'active' : ''}`,
+              onClick: () => setActiveTab('tournaments')
+            },
+            'Tournament Management'
+          ),
+          React.createElement('button',
+            {
+              className: `tab-button ${activeTab === 'calendar' ? 'active' : ''}`,
+              onClick: () => setActiveTab('calendar')
+            },
+            'Tournament Calendar'
+          ),
+          React.createElement('button',
+            {
+              className: `tab-button ${activeTab === 'approvals' ? 'active' : ''}`,
+              onClick: () => setActiveTab('approvals')
+            },
+            'Player Approvals'
           )
-          : React.createElement('div', { className: 'requests-table' },
-            React.createElement('table', null,
-              React.createElement('thead', null,
-                React.createElement('tr', null,
-                  React.createElement('th', null, 'Username'),
-                  React.createElement('th', null, 'Identity Number'),
-                  React.createElement('th', null, 'Email'),
-                  React.createElement('th', null, 'Requested Date'),
-                  React.createElement('th', null, 'Actions')
+        ),
+
+        React.createElement('div', { className: 'tabs-content' },
+          activeTab === 'tournaments' && React.createElement(
+            TournamentManagement,
+            { token: auth.token, onTournamentAdded: handleTournamentAdded }
+          ),
+
+          activeTab === 'calendar' && React.createElement(
+            TournamentCalendar,
+            { token: auth.token, refreshTrigger: tournamentRefresh }
+          ),
+
+          activeTab === 'approvals' && React.createElement('div', { className: 'approvals-tab' },
+            React.createElement('h2', null, 'Pending Registration Requests'),
+
+            error && React.createElement('div', { className: 'error-message' }, error),
+            successMessage && React.createElement('div', { className: 'success-message' }, successMessage),
+
+            loading
+              ? React.createElement('div', { className: 'loading' }, 'Loading...')
+              : pendingRequests.length === 0
+                ? React.createElement('div', { className: 'no-requests' },
+                  React.createElement('p', null, 'No pending registration requests')
                 )
-              ),
-              React.createElement('tbody', null,
-                pendingRequests.map(req =>
-                  React.createElement('tr', { key: req.id },
-                    React.createElement('td', null, req.username),
-                    React.createElement('td', null, req.identityNumber),
-                    React.createElement('td', null, req.email),
-                    React.createElement('td', null,
-                      new Date(req.createdAt).toLocaleDateString()
+                : React.createElement('div', { className: 'requests-table' },
+                  React.createElement('table', null,
+                    React.createElement('thead', null,
+                      React.createElement('tr', null,
+                        React.createElement('th', null, 'Username'),
+                        React.createElement('th', null, 'Identity Number'),
+                        React.createElement('th', null, 'Email'),
+                        React.createElement('th', null, 'Requested Date'),
+                        React.createElement('th', null, 'Actions')
+                      )
                     ),
+                    React.createElement('tbody', null,
+                      pendingRequests.map(req =>
+                        React.createElement('tr', { key: req.id },
+                          React.createElement('td', null, req.username),
+                          React.createElement('td', null, req.identityNumber),
+                          React.createElement('td', null, req.email),
+                          React.createElement('td', null,
+                            new Date(req.createdAt).toLocaleDateString()
+                          ),
 
-                    React.createElement('td', null,
-                      React.createElement('div', { className: 'actions-cell' },
-                        React.createElement('button',
-                          { 
-                            className: 'approve-btn',
-                            onClick: () => approve(req.id, req.username) 
-                          },
-                          'Approve'
-                        ),
+                          React.createElement('td', null,
+                            React.createElement('div', { className: 'actions-cell' },
+                              React.createElement('button',
+                                { 
+                                  className: 'approve-btn',
+                                  onClick: () => approve(req.id, req.username) 
+                                },
+                                'Approve'
+                              ),
 
-                        React.createElement('button',
-                          { 
-                            className: 'reject-btn',
-                            onClick: () => reject(req.id, req.username) 
-                          },
-                          'Reject'
+                              React.createElement('button',
+                                { 
+                                  className: 'reject-btn',
+                                  onClick: () => reject(req.id, req.username) 
+                                },
+                                'Reject'
+                              )
+                            )
+                          )
                         )
                       )
                     )
                   )
                 )
-              )
-            )
           )
+        )
+      )
     )
   );
 }

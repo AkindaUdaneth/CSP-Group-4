@@ -2,10 +2,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Data;
+using Microsoft.Data.SqlClient;
 using Scalar.AspNetCore;
 using tmsserver.Data;
 using tmsserver.Data.Repositories;
 using tmsserver.Services;
+
+LoadDotEnv();
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,6 +62,7 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRegistrationRequestRepository, RegistrationRequestRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
 
 // Add services
 builder.Services.AddScoped<UserService>();
@@ -82,6 +86,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+await InitializeDatabaseAsync(connectionString);
+
 app.MapOpenApi();
 app.MapScalarApiReference();
 
@@ -93,3 +99,88 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+static void LoadDotEnv()
+{
+    var candidates = new[]
+    {
+        Path.Combine(Directory.GetCurrentDirectory(), ".env"),
+        Path.Combine(AppContext.BaseDirectory, ".env")
+    };
+
+    var envPath = candidates.FirstOrDefault(File.Exists);
+    if (string.IsNullOrWhiteSpace(envPath))
+    {
+        return;
+    }
+
+    foreach (var rawLine in File.ReadAllLines(envPath))
+    {
+        var line = rawLine.Trim();
+
+        if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#"))
+        {
+            continue;
+        }
+
+        var separatorIndex = line.IndexOf('=');
+        if (separatorIndex <= 0)
+        {
+            continue;
+        }
+
+        var key = line[..separatorIndex].Trim();
+        var value = line[(separatorIndex + 1)..].Trim();
+
+        if (value.StartsWith('"') && value.EndsWith('"') && value.Length >= 2)
+        {
+            value = value[1..^1];
+        }
+
+        if (string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable(key)))
+        {
+            Environment.SetEnvironmentVariable(key, value);
+        }
+    }
+}
+
+static async Task InitializeDatabaseAsync(string connectionString)
+{
+    try
+    {
+        using (var connection = new SqlConnection(connectionString))
+        {
+            await connection.OpenAsync();
+            
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = @"
+                    IF OBJECT_ID('dbo.Tournaments', 'U') IS NULL
+                    BEGIN
+                        CREATE TABLE dbo.Tournaments (
+                            Id INT PRIMARY KEY IDENTITY(1,1),
+                            Name VARCHAR(100) NOT NULL,
+                            Description VARCHAR(500),
+                            Status TINYINT NOT NULL DEFAULT 0,
+                            StartDate DATETIME NOT NULL,
+                            EndDate DATETIME NOT NULL,
+                            CreatedByAdminId INT NOT NULL,
+                            CreatedAt DATETIME NOT NULL DEFAULT GETUTCDATE(),
+                            UpdatedAt DATETIME NULL,
+                            UpdatedByAdminId INT NULL,
+                            CONSTRAINT FK_Tournaments_CreatedByAdmin FOREIGN KEY (CreatedByAdminId) REFERENCES dbo.Users(Id) ON DELETE NO ACTION,
+                            CONSTRAINT FK_Tournaments_UpdatedByAdmin FOREIGN KEY (UpdatedByAdminId) REFERENCES dbo.Users(Id) ON DELETE SET NULL
+                        );
+                        CREATE INDEX idx_tournaments_status ON dbo.Tournaments(Status);
+                        CREATE INDEX idx_tournaments_dates ON dbo.Tournaments(StartDate, EndDate);
+                    END
+                ";
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Database initialization warning: {ex.Message}");
+    }
+}
