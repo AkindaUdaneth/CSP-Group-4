@@ -63,6 +63,9 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRegistrationRequestRepository, RegistrationRequestRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 builder.Services.AddScoped<ITournamentRepository, TournamentRepository>();
+builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+builder.Services.AddScoped<ITournamentTeamRepository, TournamentTeamRepository>();
+builder.Services.AddScoped<ITournamentMatchRepository, TournamentMatchRepository>();
 
 // Add services
 builder.Services.AddScoped<UserService>();
@@ -173,6 +176,74 @@ static async Task InitializeDatabaseAsync(string connectionString)
                         );
                         CREATE INDEX idx_tournaments_status ON dbo.Tournaments(Status);
                         CREATE INDEX idx_tournaments_dates ON dbo.Tournaments(StartDate, EndDate);
+                    END;
+
+                    IF OBJECT_ID('dbo.Groups', 'U') IS NULL
+                    BEGIN
+                        CREATE TABLE dbo.Groups (
+                            Id INT PRIMARY KEY IDENTITY(1,1),
+                            TournamentId INT NOT NULL,
+                            GroupName VARCHAR(50) NOT NULL,
+                            BracketPosition INT NULL,
+                            CreatedAt DATETIME NOT NULL DEFAULT GETUTCDATE(),
+                            UpdatedAt DATETIME NULL,
+                            CONSTRAINT FK_Groups_Tournament FOREIGN KEY (TournamentId) REFERENCES dbo.Tournaments(Id) ON DELETE CASCADE
+                        );
+                        CREATE INDEX idx_groups_tournament ON dbo.Groups(TournamentId);
+                        CREATE INDEX idx_groups_bracket ON dbo.Groups(BracketPosition);
+                    END;
+
+                    IF OBJECT_ID('dbo.GroupPlayers', 'U') IS NULL
+                    BEGIN
+                        CREATE TABLE dbo.GroupPlayers (
+                            Id INT PRIMARY KEY IDENTITY(1,1),
+                            GroupId INT NOT NULL,
+                            PlayerId INT NOT NULL,
+                            AssignedAt DATETIME NOT NULL DEFAULT GETUTCDATE(),
+                            CONSTRAINT FK_GroupPlayers_Group FOREIGN KEY (GroupId) REFERENCES dbo.Groups(Id) ON DELETE CASCADE,
+                            CONSTRAINT FK_GroupPlayers_Player FOREIGN KEY (PlayerId) REFERENCES dbo.Users(Id) ON DELETE CASCADE,
+                            CONSTRAINT UQ_GroupPlayers UNIQUE(GroupId, PlayerId)
+                        );
+                        CREATE INDEX idx_groupplayers_group ON dbo.GroupPlayers(GroupId);
+                        CREATE INDEX idx_groupplayers_player ON dbo.GroupPlayers(PlayerId);
+                    END;
+
+                    IF OBJECT_ID('dbo.TournamentTeams', 'U') IS NULL
+                    BEGIN
+                        CREATE TABLE dbo.TournamentTeams (
+                            Id INT PRIMARY KEY IDENTITY(1,1),
+                            TournamentId INT NOT NULL,
+                            TeamName VARCHAR(255) NOT NULL,
+                            TeamOrder INT NOT NULL DEFAULT 0,
+                            CreatedAt DATETIME NOT NULL DEFAULT GETUTCDATE(),
+                            UpdatedAt DATETIME NULL,
+                            CONSTRAINT FK_TournamentTeams_Tournament FOREIGN KEY (TournamentId) REFERENCES dbo.Tournaments(Id) ON DELETE CASCADE,
+                            CONSTRAINT UQ_TournamentTeams_Name UNIQUE(TournamentId, TeamName)
+                        );
+                        CREATE INDEX idx_tournament_teams_tournament ON dbo.TournamentTeams(TournamentId);
+                        CREATE INDEX idx_tournament_teams_order ON dbo.TournamentTeams(TournamentId, TeamOrder);
+                    END;
+
+                    IF OBJECT_ID('dbo.TournamentMatches', 'U') IS NULL
+                    BEGIN
+                        CREATE TABLE dbo.TournamentMatches (
+                            Id INT PRIMARY KEY IDENTITY(1,1),
+                            TournamentId INT NOT NULL,
+                            Team1Id INT NOT NULL,
+                            Team2Id INT NOT NULL,
+                            WinnerId INT NULL,
+                            IsPlayoff BIT NOT NULL DEFAULT 0,
+                            CreatedAt DATETIME NOT NULL DEFAULT GETUTCDATE(),
+                            UpdatedAt DATETIME NULL,
+                            CONSTRAINT FK_TournamentMatches_Tournament FOREIGN KEY (TournamentId) REFERENCES dbo.Tournaments(Id) ON DELETE CASCADE,
+                            CONSTRAINT FK_TournamentMatches_Team1 FOREIGN KEY (Team1Id) REFERENCES dbo.TournamentTeams(Id) ON DELETE NO ACTION,
+                            CONSTRAINT FK_TournamentMatches_Team2 FOREIGN KEY (Team2Id) REFERENCES dbo.TournamentTeams(Id) ON DELETE NO ACTION,
+                            CONSTRAINT FK_TournamentMatches_Winner FOREIGN KEY (WinnerId) REFERENCES dbo.TournamentTeams(Id) ON DELETE NO ACTION
+                        );
+                        CREATE INDEX idx_tournament_matches_tournament ON dbo.TournamentMatches(TournamentId);
+                        CREATE INDEX idx_tournament_matches_teams ON dbo.TournamentMatches(Team1Id, Team2Id);
+                        CREATE INDEX idx_tournament_matches_winner ON dbo.TournamentMatches(WinnerId);
+                        CREATE INDEX idx_tournament_matches_playoff ON dbo.TournamentMatches(IsPlayoff);
                     END
                 ";
                 await command.ExecuteNonQueryAsync();
