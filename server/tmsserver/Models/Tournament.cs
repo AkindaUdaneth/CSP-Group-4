@@ -32,5 +32,5 @@ public class TournamentRequest
 
 public class TournamentStatusUpdate
 {
-    public TournamentStatus Status { get; set; }
+    public string Status { get; set; }
 }

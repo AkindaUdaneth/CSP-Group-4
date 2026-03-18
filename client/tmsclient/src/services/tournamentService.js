@@ -1,6 +1,6 @@
 import { API_ENDPOINTS } from '../config/api';
 
-const API_URL = API_ENDPOINTS.ADMIN.replace('/admin', '/tournament');
+const API_URL = API_ENDPOINTS.ADMIN.replace('/admin', '/tournaments');
 
 export const tournamentService = {
   async getAllTournaments() {

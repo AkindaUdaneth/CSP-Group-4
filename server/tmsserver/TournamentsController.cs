@@ -28,11 +28,23 @@ public class TournamentsController : ControllerBase
         try
         {
             var tournaments = await _tournamentRepository.GetAllTournamentsAsync();
+            var result = tournaments.Select(t => new
+            {
+                t.Id,
+                t.Name,
+                t.Description,
+                Status = t.Status.ToString(),
+                t.StartDate,
+                t.EndDate,
+                t.CreatedAt,
+                t.UpdatedAt
+            }).ToList();
+            
             return Ok(new
             {
                 success = true,
-                data = tournaments,
-                count = tournaments.Count
+                data = result,
+                count = result.Count
             });
         }
         catch (Exception ex)
@@ -55,10 +67,22 @@ public class TournamentsController : ControllerBase
                 return NotFound(new { message = "Tournament not found" });
             }
 
+            var result = new
+            {
+                tournament.Id,
+                tournament.Name,
+                tournament.Description,
+                Status = tournament.Status.ToString(),
+                tournament.StartDate,
+                tournament.EndDate,
+                tournament.CreatedAt,
+                tournament.UpdatedAt
+            };
+
             return Ok(new
             {
                 success = true,
-                data = tournament
+                data = result
             });
         }
         catch (Exception ex)
@@ -81,11 +105,22 @@ public class TournamentsController : ControllerBase
             }
 
             var tournaments = await _tournamentRepository.GetTournamentsByStatusAsync((TournamentStatus)status);
+            var result = tournaments.Select(t => new
+            {
+                t.Id,
+                t.Name,
+                t.Description,
+                Status = t.Status.ToString(),
+                t.StartDate,
+                t.EndDate,
+                t.CreatedAt
+            }).ToList();
+            
             return Ok(new
             {
                 success = true,
-                data = tournaments,
-                count = tournaments.Count
+                data = result,
+                count = result.Count
             });
         }
         catch (Exception ex)
@@ -145,11 +180,22 @@ public class TournamentsController : ControllerBase
 
             await _tournamentRepository.CreateTournamentAsync(tournament);
 
+            var result = new
+            {
+                tournament.Id,
+                tournament.Name,
+                tournament.Description,
+                Status = tournament.Status.ToString(),
+                tournament.StartDate,
+                tournament.EndDate,
+                tournament.CreatedAt
+            };
+
             return CreatedAtAction(nameof(GetTournament), new { id = tournament.Id }, new
             {
                 success = true,
                 message = "Tournament created successfully",
-                data = tournament
+                data = result
             });
         }
         catch (Exception ex)
@@ -167,6 +213,15 @@ public class TournamentsController : ControllerBase
     {
         try
         {
+            Console.WriteLine($"[UpdateTournamentStatus] Received request for tournament ID: {id}");
+            Console.WriteLine($"[UpdateTournamentStatus] Request object: {(request == null ? "NULL" : $"Status={request.Status}")}");
+            
+            if (request == null)
+            {
+                Console.WriteLine("[UpdateTournamentStatus] Request body is null!");
+                return BadRequest(new { message = "Request body cannot be empty" });
+            }
+
             // Get admin ID from JWT token
             var adminIdClaim = User.FindFirst("sub")
                 ?? User.FindFirst(ClaimTypes.NameIdentifier)
@@ -192,7 +247,14 @@ public class TournamentsController : ControllerBase
                 return NotFound(new { message = "Tournament not found" });
             }
 
-            var updated = await _tournamentRepository.UpdateTournamentStatusAsync(id, request.Status, adminId);
+            // Parse string status to enum
+            if (!Enum.TryParse<TournamentStatus>(request.Status, true, out var parsedStatus))
+            {
+                return BadRequest(new { message = "Invalid tournament status. Valid values: Scheduled, InProgress, Completed, Cancelled" });
+            }
+
+            Console.WriteLine($"[UpdateTournamentStatus] About to update tournament {id} with status: {request.Status}");
+            var updated = await _tournamentRepository.UpdateTournamentStatusAsync(id, parsedStatus, adminId);
 
             if (!updated)
             {
@@ -200,15 +262,28 @@ public class TournamentsController : ControllerBase
             }
 
             var updatedTournament = await _tournamentRepository.GetTournamentByIdAsync(id);
+            var result = new
+            {
+                updatedTournament.Id,
+                updatedTournament.Name,
+                updatedTournament.Description,
+                Status = updatedTournament.Status.ToString(),
+                updatedTournament.StartDate,
+                updatedTournament.EndDate,
+                updatedTournament.UpdatedAt
+            };
+            
             return Ok(new
             {
                 success = true,
                 message = "Tournament status updated successfully",
-                data = updatedTournament
+                data = result
             });
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"[UpdateTournamentStatus] Exception: {ex.Message}");
+            Console.WriteLine($"[UpdateTournamentStatus] Stack trace: {ex.StackTrace}");
             return StatusCode(500, new { message = "Error updating tournament status", error = ex.Message });
         }
     }
@@ -272,11 +347,22 @@ public class TournamentsController : ControllerBase
             }
 
             var updatedTournament = await _tournamentRepository.GetTournamentByIdAsync(id);
+            var result = new
+            {
+                updatedTournament.Id,
+                updatedTournament.Name,
+                updatedTournament.Description,
+                Status = updatedTournament.Status.ToString(),
+                updatedTournament.StartDate,
+                updatedTournament.EndDate,
+                updatedTournament.UpdatedAt
+            };
+
             return Ok(new
             {
                 success = true,
                 message = "Tournament updated successfully",
-                data = updatedTournament
+                data = result
             });
         }
         catch (Exception ex)

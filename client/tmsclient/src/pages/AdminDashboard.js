@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import TournamentManagement from '../components/TournamentManagement';
 import TournamentCalendar from '../components/TournamentCalendar';
+import TournamentBracket from '../components/TournamentBracket';
 
 import { API_ENDPOINTS } from '../config/api';
 import '../styles/AdminDashboard.css';
@@ -29,6 +30,7 @@ export default function AdminDashboard() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [tournamentRefresh, setTournamentRefresh] = useState(0);
+  const [selectedTournament, setSelectedTournament] = useState(null);
 
   useEffect(() => {
 
@@ -197,10 +199,17 @@ export default function AdminDashboard() {
               onClick: () => setActiveTab('approvals')
             },
             'Player Approvals'
+          ),
+          React.createElement('button',
+            {
+              className: `tab-button ${activeTab === 'bracket' ? 'active' : ''}`,
+              onClick: () => setActiveTab('bracket')
+            },
+            'Tournament Bracket'
           )
         ),
 
-        React.createElement('div', { className: 'tabs-content' },
+        React.createElement('div', { className: 'tabs-content' }, [
           activeTab === 'tournaments' && React.createElement(
             TournamentManagement,
             { token: auth.token, onTournamentAdded: handleTournamentAdded }
@@ -209,6 +218,11 @@ export default function AdminDashboard() {
           activeTab === 'calendar' && React.createElement(
             TournamentCalendar,
             { token: auth.token, refreshTrigger: tournamentRefresh }
+          ),
+
+          activeTab === 'bracket' && React.createElement(
+            TournamentBracket,
+            { token: auth.token }
           ),
 
           activeTab === 'approvals' && React.createElement('div', { className: 'approvals-tab' },
@@ -269,7 +283,7 @@ export default function AdminDashboard() {
                   )
                 )
           )
-        )
+        ])
       )
     )
   );

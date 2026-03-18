@@ -341,3 +341,37 @@
     padding: 24px 16px;
   }
 }
+
+.groups-tab {
+  padding: 32px 24px;
+}
+
+.groups-tab h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 24px 0;
+}
+
+.tournament-selector {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 40px 24px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tournament-selector p {
+  color: #2c3e50;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 12px 0;
+}
+
+.tournament-list-selector {
+  background: white;
+  padding: 20px;
+  border-radius: 4px;
+  margin-top: 16px;
+  color: #7f8c8d;
+}
