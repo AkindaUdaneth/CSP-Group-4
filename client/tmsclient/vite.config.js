@@ -14,6 +14,14 @@ export default defineConfig({
     },
     react(),
   ],
+  // This tells the initial dependency scanner to allow JSX inside .js files
+  optimizeDeps: {
+    esbuildOptions: {
+      loader: {
+        '.js': 'jsx',
+      },
+    },
+  },
   server: {
     proxy: {
       '/api': 'http://localhost:5011',
