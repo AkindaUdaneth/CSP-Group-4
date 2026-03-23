@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 import { API_ENDPOINTS } from '../config/api';
 import '../styles/AdminDashboard.css';
+import UserAccounts from '../components/UserAccounts';
 
 const API_URL = API_ENDPOINTS.ADMIN;
 
@@ -222,7 +223,8 @@ export default function AdminDashboard() {
                 )
               )
             )
-          )
+          ),
+      React.createElement(UserAccounts, { apiUrl: API_URL, token: auth.token })
     )
   );
 }

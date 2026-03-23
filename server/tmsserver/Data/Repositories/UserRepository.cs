@@ -178,8 +178,8 @@ public class UserRepository : IUserRepository
             await connection.OpenAsync();
             var command = connection.CreateCommand();
             command.CommandText = @"
-                INSERT INTO Users (Username, Email, IdentityNumber, PasswordHash, Role, IsApproved, CreatedAt) 
-                VALUES (@username, @email, @identityNumber, @passwordHash, @role, @isApproved, @createdAt);
+                INSERT INTO Users (Username, Email, IdentityNumber, PasswordHash, Role, IsApproved, ApprovedByAdminId, ApprovedAt, CreatedAt) 
+                VALUES (@username, @email, @identityNumber, @passwordHash, @role, @isApproved, @approvedByAdminId, @approvedAt, @createdAt);
                 SELECT LAST_INSERT_ID();";
             
             command.Parameters.AddWithValue("@username", user.Username);
@@ -188,6 +188,8 @@ public class UserRepository : IUserRepository
             command.Parameters.AddWithValue("@passwordHash", user.PasswordHash);
             command.Parameters.AddWithValue("@role", (int)user.Role);
             command.Parameters.AddWithValue("@isApproved", user.IsApproved);
+            command.Parameters.AddWithValue("@approvedByAdminId", user.ApprovedByAdminId ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("@approvedAt", user.ApprovedAt ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("@createdAt", user.CreatedAt);
 
             var result = await command.ExecuteScalarAsync();
