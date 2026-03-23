@@ -6,6 +6,7 @@ import TournamentCalendar from '../components/TournamentCalendar';
 import TournamentBracket from '../components/TournamentBracket';
 import LiveScoring from './LiveScoring';
 import InventoryPage from './InventoryPage';
+import PracticeSessionManagement from '../components/PracticeSessionManagement';
 
 import { API_ENDPOINTS } from '../config/api';
 import '../styles/AdminDashboard.css';
@@ -38,7 +39,6 @@ export default function AdminDashboard() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [tournamentRefresh, setTournamentRefresh] = useState(0);
-  const [selectedTournament, setSelectedTournament] = useState(null);
 
   useEffect(() => {
 
@@ -56,6 +56,7 @@ export default function AdminDashboard() {
 
     loadPending();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth.loading, auth.isAuthenticated, role]);
 
   async function loadPending() {
@@ -231,6 +232,13 @@ export default function AdminDashboard() {
              'Inventory'
            )
         ),
+        React.createElement('button',
+             {
+               className: `tab-button ${activeTab === 'practice' ? 'active' : ''}`,
+               onClick: () => setActiveTab('practice')
+             },
+             'Practice Sessions'
+           ),
 
         React.createElement('div', { className: 'tabs-content' }, [
           activeTab === 'tournaments' && React.createElement(
@@ -260,6 +268,11 @@ export default function AdminDashboard() {
            activeTab === 'inventory' && React.createElement(
              InventoryPage,
              { isAdmin: true, userId: auth.user?.id, key: "tab-inventory" }
+           ),
+
+           activeTab === 'practice' && React.createElement(
+             PracticeSessionManagement,
+             { token: auth.token, key: "tab-practice" }
            ),
 
           activeTab === 'approvals' && React.createElement('div', { className: 'approvals-tab', key: "tab-approvals" },
