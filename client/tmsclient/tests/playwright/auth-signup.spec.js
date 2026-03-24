@@ -9,7 +9,7 @@ test('shows validation error for mismatched passwords', async ({ page }) => {
   await page.getByPlaceholder('Username').fill('newplayer');
   await page.getByPlaceholder('Identity Number').fill('it23999999');
   await page.getByPlaceholder('Email').fill('newplayer@sliit.lk');
-  await page.getByPlaceholder('Password').fill('Pass@123');
+  await page.getByPlaceholder('Password', { exact: true }).fill('Pass@123');
   await page.getByPlaceholder('Confirm Password').fill('Pass@456');
   await page.getByRole('button', { name: 'Sign Up' }).click();
 
@@ -32,7 +32,7 @@ test('signs up successfully and redirects to login', async ({ page }) => {
   await page.getByPlaceholder('Username').fill('newplayer');
   await page.getByPlaceholder('Identity Number').fill('it23999999');
   await page.getByPlaceholder('Email').fill('newplayer@sliit.lk');
-  await page.getByPlaceholder('Password').fill('Pass@123');
+  await page.getByPlaceholder('Password', { exact: true }).fill('Pass@123');
   await page.getByPlaceholder('Confirm Password').fill('Pass@123');
   await page.getByRole('button', { name: 'Sign Up' }).click();
 
