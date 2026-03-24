@@ -1,6 +1,6 @@
 # QA Test Report: SCRUM-80 (Transactional CRUD Testing)
 
-**Tester:** Lead QA\
+**Tester:** Lead QA (IT23750210 - K.H.G.A.Udaneth)\
 **Date:** March 24, 2026\
 **Environment:** Local Development (Azure DB Connected)\
 **Feature:** Practice Sessions Management\
