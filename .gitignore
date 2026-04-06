@@ -57,3 +57,8 @@ temp/
 
 # Local generated framework/runtime folders
 server/tmsserver/net10.0/
+
+bin/
+obj/
+playwright-report/
+test-results/
