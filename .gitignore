@@ -62,3 +62,6 @@ bin/
 obj/
 playwright-report/
 test-results/
+
+server/tmsserver/bin/
+server/tmsserver/obj/
