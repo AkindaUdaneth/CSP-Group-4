@@ -1,25 +1,32 @@
 {
   "format": 1,
   "restore": {
-    "/Users/omindu/Documents/sliit/cspproject/CSP-Group-4/tests/UITests/UITests.csproj": {}
+    "C:\\Users\\Heshan Ranwala\\Desktop\\CSP\\Main Project\\Scrum 57\\CSP-Group-4\\tests\\UITests\\UITests.csproj": {}
   },
   "projects": {
-    "/Users/omindu/Documents/sliit/cspproject/CSP-Group-4/tests/UITests/UITests.csproj": {
+    "C:\\Users\\Heshan Ranwala\\Desktop\\CSP\\Main Project\\Scrum 57\\CSP-Group-4\\tests\\UITests\\UITests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/omindu/Documents/sliit/cspproject/CSP-Group-4/tests/UITests/UITests.csproj",
+        "projectUniqueName": "C:\\Users\\Heshan Ranwala\\Desktop\\CSP\\Main Project\\Scrum 57\\CSP-Group-4\\tests\\UITests\\UITests.csproj",
         "projectName": "UITests",
-        "projectPath": "/Users/omindu/Documents/sliit/cspproject/CSP-Group-4/tests/UITests/UITests.csproj",
-        "packagesPath": "/Users/omindu/.nuget/packages/",
-        "outputPath": "/Users/omindu/Documents/sliit/cspproject/CSP-Group-4/tests/UITests/obj/",
+        "projectPath": "C:\\Users\\Heshan Ranwala\\Desktop\\CSP\\Main Project\\Scrum 57\\CSP-Group-4\\tests\\UITests\\UITests.csproj",
+        "packagesPath": "C:\\Users\\Heshan Ranwala\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Heshan Ranwala\\Desktop\\CSP\\Main Project\\Scrum 57\\CSP-Group-4\\tests\\UITests\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/Users/omindu/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Heshan Ranwala\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -69,6 +76,8 @@
               "version": "[145.0.7632.11700, )"
             },
             "coverlet.collector": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
               "version": "[6.0.4, )"
             }
@@ -84,22 +93,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.24, 8.0.24]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.24, 8.0.24]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.103/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

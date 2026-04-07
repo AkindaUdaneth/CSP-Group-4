@@ -9,10 +9,20 @@ using tmsserver.Data.Repositories;
 using tmsserver.Services;
 
 
-// Load .env file for environment variables
-DotNetEnv.Env.Load();
-
 var builder = WebApplication.CreateBuilder(args);
+
+// Local development convenience only. In Azure App Service, use App Settings / Connection Strings.
+if (builder.Environment.IsDevelopment())
+{
+    try
+    {
+        DotNetEnv.Env.Load();
+    }
+    catch
+    {
+        // Ignore missing/invalid .env in dev.
+    }
+}
 
 // Configure services
 builder.Services.AddControllers();
@@ -20,16 +30,33 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
-// Use AZURE_SQL_CONNECTIONSTRING environment variable
-var connectionString = Environment.GetEnvironmentVariable("AZURE_SQL_CONNECTIONSTRING");
+// Prefer standard .NET ConnectionStrings config (works with appsettings + Azure "Connection strings").
+// Fallback: explicit env var AZURE_SQL_CONNECTIONSTRING (requested).
+var connectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? Environment.GetEnvironmentVariable("AZURE_SQL_CONNECTIONSTRING")
+    ?? builder.Configuration["AZURE_SQL_CONNECTIONSTRING"];
 
 if (string.IsNullOrEmpty(connectionString))
 {
-    throw new InvalidOperationException("Environment variable 'AZURE_SQL_CONNECTIONSTRING' is not configured.");
+    throw new InvalidOperationException(
+        "Database connection string is not configured.\n" +
+        "Set one of:\n" +
+        "  - ConnectionStrings:DefaultConnection (recommended)\n" +
+        "  - AZURE_SQL_CONNECTIONSTRING (fallback)\n"
+    );
 }
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
-var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]!);
+var jwtKey = jwtSettings["Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+{
+    throw new InvalidOperationException(
+        "JWT signing key is not configured.\n" +
+        "Set Jwt:Key via environment variable (recommended): JWT__KEY\n"
+    );
+}
+var key = Encoding.UTF8.GetBytes(jwtKey);
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
@@ -78,13 +105,18 @@ builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
 // Add CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowLocalhost", builder =>
+    options.AddPolicy("AllowLocalhost", policy =>
     {
-        builder.WithOrigins(
-                "http://localhost:5173", 
+        var allowedOrigins =
+            builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+            ?? new[]
+            {
+                "http://localhost:5173",
                 "http://localhost:3000",
                 "https://csp-group-4.vercel.app"
-            )
+            };
+
+        policy.WithOrigins(allowedOrigins)
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();

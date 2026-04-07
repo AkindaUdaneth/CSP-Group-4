@@ -1,7 +1,9 @@
 using Microsoft.Data.SqlClient;
 
 var connectionString = Environment.GetEnvironmentVariable("AZURE_SQL_CONNECTIONSTRING")
-    ?? "Server=tcp:sliit.database.windows.net,1433;Initial Catalog=free-sql-db-3836547;Persist Security Info=False;User ID=sliit;Password=Omindu@2003;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
+    ?? throw new InvalidOperationException(
+        "AZURE_SQL_CONNECTIONSTRING is not configured. Set the environment variable before running migrations."
+    );
 
 var sqlFile = args.Length > 0 ? args[0] : "Migrations/20260318_AddTournamentsTable.sql";
 

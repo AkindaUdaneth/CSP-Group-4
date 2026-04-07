@@ -1,0 +1,17 @@
+Code Coverage Report (Vitest v8)
+Generated from: client/tmsclient/coverage/index.html
+
+Overall
+- Statements: 74.9% (3723/4970)
+- Branches: 58.69% (496/845)
+- Functions: 57.14% (140/245)
+- Lines: 74.9% (3723/4970)
+
+By Folder
+- src: Statements 0% (0/128), Branches 0% (0/2), Functions 0% (0/2), Lines 0% (0/128)
+- src/components: Statements 87.18% (1823/2091), Branches 62.02% (245/395), Functions 72.28% (60/83), Lines 87.18% (1823/2091)
+- src/config: Statements 100% (6/6), Branches 100% (0/0), Functions 100% (0/0), Lines 100% (6/6)
+- src/contexts: Statements 68.96% (80/116), Branches 62.5% (10/16), Functions 100% (2/2), Lines 68.96% (80/116)
+- src/pages: Statements 70.62% (1416/2005), Branches 56.31% (205/364), Functions 41.59% (47/113), Lines 70.62% (1416/2005)
+- src/services: Statements 63.78% (398/624), Branches 52.94% (36/68), Functions 68.88% (31/45), Lines 63.78% (398/624)
+

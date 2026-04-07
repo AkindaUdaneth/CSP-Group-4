@@ -25,6 +25,7 @@ TestResults/
 node_modules/
 dist/
 build/
+client/tmsclient/coverage/
 .cache/
 .vite/
 *.tsbuildinfo
