@@ -8,7 +8,6 @@ using tmsserver.Data;
 using tmsserver.Data.Repositories;
 using tmsserver.Services;
 
-
 // Load .env file for environment variables
 DotNetEnv.Env.Load();
 
@@ -73,6 +72,9 @@ builder.Services.AddScoped<ITournamentTeamRepository, TournamentTeamRepository>(
 builder.Services.AddScoped<ITournamentMatchRepository, TournamentMatchRepository>();
 builder.Services.AddScoped<IMatchScoreRepository, MatchScoreRepository>();
 builder.Services.AddScoped<ILiveGameScoreRepository, LiveGameScoreRepository>();
+
+// ADDED THIS LINE to fix the 500 Internal Server Error
+builder.Services.AddScoped<PracticeSessionRepository>();
 
 // Add services
 builder.Services.AddScoped<UserService>();

@@ -108,7 +108,7 @@ namespace tmsserver.Data.Repositories
             }
         }
 
-        // 5. GET ATTENDANCE REPORT (Akinda's Code - PDF Export)
+        // 5. GET ATTENDANCE REPORT
         public List<PlayerAttendanceReportDto> GetAttendanceReport(DateTime startDate, DateTime endDate)
         {
             var reportData = new List<PlayerAttendanceReportDto>();
@@ -131,7 +131,7 @@ namespace tmsserver.Data.Repositories
                     HAVING COUNT(pa.Id) > 0"; 
 
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@playerRole", (int)UserRole.Player); // Aligned with teammate's implementation!
+                cmd.Parameters.AddWithValue("@playerRole", (int)UserRole.Player); 
                 cmd.Parameters.AddWithValue("@StartDate", startDate.Date);
                 cmd.Parameters.AddWithValue("@EndDate", endDate.Date);
 
@@ -143,8 +143,9 @@ namespace tmsserver.Data.Repositories
                         var stat = new PlayerAttendanceReportDto
                         {
                             PlayerId = Convert.ToInt32(reader["PlayerId"]),
-                            PlayerName = reader["PlayerName"].ToString(),
-                            IdentityNumber = reader["IdentityNumber"].ToString(),
+                            // ADDED DEFENSIVE DBNull CHECKS HERE
+                            PlayerName = reader["PlayerName"] == DBNull.Value ? "Unknown" : reader["PlayerName"].ToString(),
+                            IdentityNumber = reader["IdentityNumber"] == DBNull.Value ? "N/A" : reader["IdentityNumber"].ToString(),
                             TotalSessionsScheduled = Convert.ToInt32(reader["TotalSessionsScheduled"]),
                             SessionsAttended = Convert.ToInt32(reader["SessionsAttended"])
                         };
@@ -160,7 +161,6 @@ namespace tmsserver.Data.Repositories
             return reportData.OrderBy(r => r.AttendancePercentage).ToList();
         }
 
-        // TEAMMATE'S CODE BELOW
         public List<PracticeAttendanceRow> GetAttendanceForSessionDate(int sessionId, DateTime attendanceDate)
         {
             var rows = new List<PracticeAttendanceRow>();
