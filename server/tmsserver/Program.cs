@@ -12,6 +12,9 @@ using tmsserver.Services;
 // Load .env file for environment variables
 DotNetEnv.Env.Load();
 
+// Fallback to our manual loader if DotNetEnv misses it
+LoadDotEnv(); 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure services
