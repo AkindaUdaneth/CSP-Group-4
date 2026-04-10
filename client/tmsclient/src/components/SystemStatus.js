@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Database, Server, Clock, RefreshCw, AlertTriangle, AlertOctagon } from 'lucide-react';
+import { Activity, Database, Server, Clock, RefreshCw, AlertTriangle, AlertOctagon, BarChart2 } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { API_ENDPOINTS } from '../config/api';
 import '../styles/AdminDashboard.css';
@@ -86,6 +86,12 @@ const SystemStatus = () => {
 
     const isHealthy = healthData?.status === "Healthy";
 
+    // --- CALCULATE DOWNTIME PERCENTAGE ---
+    const totalRecords = historyData.length;
+    const downRecords = historyData.filter(d => d.statusValue === 0).length;
+    const downtimePercentage = totalRecords > 0 ? ((downRecords / totalRecords) * 100).toFixed(2) : "0.00";
+    const uptimePercentage = totalRecords > 0 ? (100 - parseFloat(downtimePercentage)).toFixed(2) : "100.00";
+
     const CustomTooltip = ({ active, payload }) => {
         if (active && payload && payload.length) {
             const data = payload[0].payload;
@@ -122,7 +128,10 @@ const SystemStatus = () => {
             'Cannot reach the server. The backend API might be completely offline.'
         ),
 
-        React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' } },
+        // --- KPI CARDS (NOW WITH 4 COLUMNS) ---
+        React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' } },
+            
+            // 1. API Server Card
             React.createElement('div', { style: { background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' } },
                 React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '10px', color: '#6b7280', marginBottom: '16px' } },
                     React.createElement(Server, { size: 20 }),
@@ -134,6 +143,7 @@ const SystemStatus = () => {
                 )
             ),
 
+            // 2. Database Card
             React.createElement('div', { style: { background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' } },
                 React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '10px', color: '#6b7280', marginBottom: '16px' } },
                     React.createElement(Database, { size: 20 }),
@@ -145,6 +155,17 @@ const SystemStatus = () => {
                 )
             ),
 
+            // 3. NEW SLA & Downtime Card
+            React.createElement('div', { style: { background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' } },
+                React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '10px', color: '#6b7280', marginBottom: '16px' } },
+                    React.createElement(BarChart2, { size: 20 }),
+                    React.createElement('h3', { style: { margin: 0, fontSize: '14px', fontWeight: '600', textTransform: 'uppercase' } }, '24h SLA')
+                ),
+                React.createElement('div', { style: { fontSize: '24px', fontWeight: '700', color: parseFloat(downtimePercentage) > 0 ? '#ef4444' : '#10b981' } }, `${uptimePercentage}% Uptime`),
+                React.createElement('div', { style: { fontSize: '12px', color: '#6b7280', marginTop: '8px' } }, `Downtime: ${downtimePercentage}%`)
+            ),
+
+            // 4. Timestamp Card
             React.createElement('div', { style: { background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' } },
                 React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '10px', color: '#6b7280', marginBottom: '16px' } },
                     React.createElement(Clock, { size: 20 }),
@@ -153,11 +174,6 @@ const SystemStatus = () => {
                 React.createElement('div', { style: { fontSize: '24px', fontWeight: '700', color: '#111827' } }, formatTime(lastChecked)),
                 healthData?.timestamp && React.createElement('div', { style: { fontSize: '12px', color: '#6b7280', marginTop: '8px' } }, `Server UTC: ${formatTime(healthData.timestamp)}`)
             )
-        ),
-
-        healthData?.message && React.createElement('div', { style: { marginTop: '24px', padding: '16px', background: '#fef2f2', borderLeft: '4px solid #ef4444', color: '#991b1b', borderRadius: '0 8px 8px 0' } },
-            React.createElement('strong', null, 'Warning Details: '),
-            healthData.message
         ),
 
         // --- UPTIME GRAPH ---
@@ -183,7 +199,7 @@ const SystemStatus = () => {
             )
         ),
 
-        // --- NEW: DOWNTIME INCIDENT LOG ---
+        // --- DOWNTIME INCIDENT LOG ---
         React.createElement('div', { style: { marginTop: '24px', background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' } },
             React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' } },
                 React.createElement(AlertOctagon, { size: 20, color: '#ef4444' }),
