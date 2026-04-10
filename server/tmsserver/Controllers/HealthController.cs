@@ -115,5 +115,77 @@ namespace tmsserver.Controllers
                 });
             }
         }
+
+        // 3. The Downtime Incident Log
+        [HttpGet("downtimes")]
+        public async Task<IActionResult> GetDowntimeLogs()
+        {
+            try
+            {
+                var downtimes = new List<object>();
+
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+                        // Fetch all history ordered chronologically
+                        command.CommandText = "SELECT Status, PingedAt FROM dbo.SystemHealthLogs ORDER BY PingedAt ASC;";
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            DateTime? outageStart = null;
+
+                            while (await reader.ReadAsync())
+                            {
+                                string status = reader["Status"].ToString();
+                                DateTime pingTime = Convert.ToDateTime(reader["PingedAt"]);
+
+                                if (status == "Unhealthy" && outageStart == null)
+                                {
+                                    // The server just went down. Mark the start time.
+                                    outageStart = pingTime;
+                                }
+                                else if (status == "Healthy" && outageStart != null)
+                                {
+                                    // The server just came back online! Calculate the duration.
+                                    var duration = pingTime - outageStart.Value;
+                                    downtimes.Add(new 
+                                    {
+                                        start = outageStart.Value,
+                                        end = pingTime,
+                                        durationMinutes = Math.Round(duration.TotalMinutes),
+                                        status = "Resolved"
+                                    });
+                                    // Reset for the next potential outage
+                                    outageStart = null; 
+                                }
+                            }
+
+                            // Edge Case: What if the server is currently down right now?
+                            if (outageStart != null)
+                            {
+                                var duration = DateTime.UtcNow - outageStart.Value;
+                                downtimes.Add(new 
+                                {
+                                    start = outageStart.Value,
+                                    end = (DateTime?)null,
+                                    durationMinutes = Math.Round(duration.TotalMinutes),
+                                    status = "Ongoing"
+                                });
+                            }
+                        }
+                    }
+                }
+
+                // Reverse the list so the most recent outages show up at the top of our table
+                downtimes.Reverse();
+
+                return Ok(new { success = true, data = downtimes });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Database, Server, Clock, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Activity, Database, Server, Clock, RefreshCw, AlertTriangle, AlertOctagon } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 import { API_ENDPOINTS } from '../config/api';
 import '../styles/AdminDashboard.css';
@@ -9,18 +9,16 @@ const HEALTH_API_URL = API_ENDPOINTS.ADMIN.replace('/admin', '/health');
 const SystemStatus = () => {
     const [healthData, setHealthData] = useState(null);
     const [historyData, setHistoryData] = useState([]);
+    const [downtimeData, setDowntimeData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [lastChecked, setLastChecked] = useState(new Date());
 
-    // 1. Fetch real-time status
     const fetchHealth = async () => {
-        setLoading(true);
         setError(null);
         try {
             const response = await fetch(HEALTH_API_URL);
             const data = await response.json();
-            
             if (!response.ok) {
                 setHealthData(data);
                 throw new Error("System is degraded or unhealthy.");
@@ -29,20 +27,15 @@ const SystemStatus = () => {
         } catch (err) {
             console.error("Health check failed:", err);
             setError(err.message);
-        } finally {
-            setLastChecked(new Date());
-            setLoading(false);
         }
     };
 
-    // 2. Fetch the 24-hour SLA History
     const fetchHistory = async () => {
         try {
             const response = await fetch(`${HEALTH_API_URL}/history`);
             if (response.ok) {
                 const data = await response.json();
                 if (data.success && data.data) {
-                    // Format data for Recharts: UP = 1, DOWN = 0
                     const formattedData = data.data.map(log => ({
                         time: new Date(log.pingedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                         fullDate: new Date(log.pingedAt).toLocaleString(),
@@ -57,15 +50,31 @@ const SystemStatus = () => {
         }
     };
 
-    // 3. Trigger both fetches on load
+    const fetchDowntimes = async () => {
+        try {
+            const response = await fetch(`${HEALTH_API_URL}/downtimes`);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.success && data.data) {
+                    setDowntimeData(data.data);
+                }
+            }
+        } catch (err) {
+            console.error("Failed to fetch downtimes:", err);
+        }
+    };
+
     useEffect(() => {
         const loadAllData = async () => {
+            setLoading(true);
             await fetchHealth();
             await fetchHistory();
+            await fetchDowntimes();
+            setLastChecked(new Date());
+            setLoading(false);
         };
         
         loadAllData();
-        // Auto-refresh every 60 seconds
         const interval = setInterval(loadAllData, 60000);
         return () => clearInterval(interval);
     }, []);
@@ -77,7 +86,6 @@ const SystemStatus = () => {
 
     const isHealthy = healthData?.status === "Healthy";
 
-    // Custom Tooltip for the Recharts graph
     const CustomTooltip = ({ active, payload }) => {
         if (active && payload && payload.length) {
             const data = payload[0].payload;
@@ -90,11 +98,16 @@ const SystemStatus = () => {
     };
 
     return React.createElement('div', { className: 'approvals-tab' },
-        // --- HEADER ---
         React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' } },
             React.createElement('h2', { style: { margin: 0 } }, 'System Status'),
             React.createElement('button', {
-                onClick: () => { fetchHealth(); fetchHistory(); },
+                onClick: () => { 
+                    setLoading(true);
+                    Promise.all([fetchHealth(), fetchHistory(), fetchDowntimes()]).then(() => {
+                        setLastChecked(new Date());
+                        setLoading(false);
+                    });
+                },
                 className: 'approve-btn',
                 style: { display: 'flex', alignItems: 'center', gap: '8px', background: '#3b82f6', padding: '8px 16px' },
                 disabled: loading
@@ -104,16 +117,12 @@ const SystemStatus = () => {
             )
         ),
 
-        // --- ERROR ALERT ---
         error && !healthData && React.createElement('div', { className: 'error-message', style: { display: 'flex', alignItems: 'center', gap: '10px' } },
             React.createElement(AlertTriangle, { size: 20 }),
             'Cannot reach the server. The backend API might be completely offline.'
         ),
 
-        // --- KPI CARDS ---
         React.createElement('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' } },
-            
-            // API Server Card
             React.createElement('div', { style: { background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' } },
                 React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '10px', color: '#6b7280', marginBottom: '16px' } },
                     React.createElement(Server, { size: 20 }),
@@ -125,7 +134,6 @@ const SystemStatus = () => {
                 )
             ),
 
-            // Database Card
             React.createElement('div', { style: { background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' } },
                 React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '10px', color: '#6b7280', marginBottom: '16px' } },
                     React.createElement(Database, { size: 20 }),
@@ -137,7 +145,6 @@ const SystemStatus = () => {
                 )
             ),
 
-            // Timestamp Card
             React.createElement('div', { style: { background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' } },
                 React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '10px', color: '#6b7280', marginBottom: '16px' } },
                     React.createElement(Clock, { size: 20 }),
@@ -153,7 +160,7 @@ const SystemStatus = () => {
             healthData.message
         ),
 
-        // --- NEW UPTIME GRAPH (RECHARTS) ---
+        // --- UPTIME GRAPH ---
         React.createElement('div', { style: { marginTop: '24px', background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' } },
             React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' } },
                 React.createElement(Activity, { size: 20, color: '#374151' }),
@@ -165,22 +172,47 @@ const SystemStatus = () => {
                         React.createElement(AreaChart, { data: historyData, margin: { top: 10, right: 30, left: 0, bottom: 0 } },
                             React.createElement(CartesianGrid, { strokeDasharray: '3 3', vertical: false, stroke: '#e5e7eb' }),
                             React.createElement(XAxis, { dataKey: 'time', tick: { fontSize: 12, fill: '#6b7280' }, minTickGap: 30, tickMargin: 10 }),
-                            React.createElement(YAxis, { 
-                                domain: [0, 1], 
-                                ticks: [0, 1], 
-                                tickFormatter: (val) => val === 1 ? 'UP' : 'DOWN', 
-                                tick: { fontSize: 12, fill: '#6b7280' },
-                                width: 50
-                            }),
+                            React.createElement(YAxis, { domain: [0, 1], ticks: [0, 1], tickFormatter: (val) => val === 1 ? 'UP' : 'DOWN', tick: { fontSize: 12, fill: '#6b7280' }, width: 50 }),
                             React.createElement(Tooltip, { content: React.createElement(CustomTooltip) }),
-                            // type="stepAfter" creates that blocky Server SLA look instead of a curved line
                             React.createElement(Area, { type: 'stepAfter', dataKey: 'statusValue', stroke: '#10b981', fill: '#ecfdf5', strokeWidth: 2 })
                         )
                     ) 
                     : React.createElement('div', { style: { display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', color: '#9ca3af', fontStyle: 'italic' } }, 
-                        'Waiting for background service to collect initial data. Check back in 15 minutes.'
+                        'Waiting for background service to collect initial data.'
                     )
             )
+        ),
+
+        // --- NEW: DOWNTIME INCIDENT LOG ---
+        React.createElement('div', { style: { marginTop: '24px', background: 'white', padding: '24px', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' } },
+            React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' } },
+                React.createElement(AlertOctagon, { size: 20, color: '#ef4444' }),
+                React.createElement('h3', { style: { margin: 0, color: '#111827' } }, 'Recent Outages & Downtime')
+            ),
+            downtimeData.length === 0 
+                ? React.createElement('div', { style: { padding: '20px', textAlign: 'center', color: '#10b981', background: '#ecfdf5', borderRadius: '8px', border: '1px solid #a7f3d0' } }, 'No outages recorded! 100% Uptime.')
+                : React.createElement('div', { className: 'requests-table' },
+                    React.createElement('table', null,
+                        React.createElement('thead', null,
+                            React.createElement('tr', null,
+                                React.createElement('th', null, 'Status'),
+                                React.createElement('th', null, 'Outage Started'),
+                                React.createElement('th', null, 'Outage Ended'),
+                                React.createElement('th', null, 'Duration')
+                            )
+                        ),
+                        React.createElement('tbody', null,
+                            downtimeData.map((incident, idx) => 
+                                React.createElement('tr', { key: idx },
+                                    React.createElement('td', { style: { fontWeight: 'bold', color: incident.status === 'Ongoing' ? '#ef4444' : '#10b981' } }, incident.status),
+                                    React.createElement('td', null, new Date(incident.start).toLocaleString()),
+                                    React.createElement('td', null, incident.end ? new Date(incident.end).toLocaleString() : 'Currently Down'),
+                                    React.createElement('td', null, `${incident.durationMinutes} min`)
+                                )
+                            )
+                        )
+                    )
+                )
         )
     );
 };
