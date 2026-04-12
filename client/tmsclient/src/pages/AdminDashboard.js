@@ -8,7 +8,8 @@ import LiveScoring from './LiveScoring';
 import InventoryPage from './InventoryPage';
 import PracticeSessionManagement from '../components/PracticeSessionManagement';
 import AdminAttendanceManagement from '../components/AdminAttendanceManagement';
-import AttendanceReport from '../components/AttendanceReport'; // <-- Your component
+import AttendanceReport from '../components/AttendanceReport';
+import SystemStatus from '../components/SystemStatus';
 
 import { API_ENDPOINTS } from '../config/api';
 import '../styles/AdminDashboard.css';
@@ -290,16 +291,20 @@ export default function AdminDashboard() {
           ),
           React.createElement('button',
             { className: `tab-button ${activeTab === 'attendance' ? 'active' : ''}`, onClick: () => setActiveTab('attendance') },
-            'Mark Attendance' // Clarified the name so it doesn't conflict with your report
+            'Mark Attendance' 
           ),
           React.createElement('button',
             { className: `tab-button ${activeTab === 'players' ? 'active' : ''}`, onClick: () => { setActiveTab('players'); loadPlayers(); } },
             'Players'
           ),
-          // --- YOUR NEW TAB BUTTON ---
           React.createElement('button',
             { className: `tab-button ${activeTab === 'reports' ? 'active' : ''}`, onClick: () => setActiveTab('reports') },
             'Attendance Reports'
+          ),
+          // ---> NEW SYSTEM STATUS TAB BUTTON HERE <---
+          React.createElement('button',
+            { className: `tab-button ${activeTab === 'status' ? 'active' : ''}`, onClick: () => setActiveTab('status') },
+            'System Status'
           )
         ),
 
@@ -310,12 +315,11 @@ export default function AdminDashboard() {
           activeTab === 'live-scoring' && React.createElement(LiveScoring, { key: "tab-live-scoring" }),
           activeTab === 'inventory' && React.createElement(InventoryPage, { isAdmin: true, userId: auth.user?.id, key: "tab-inventory" }),
           activeTab === 'practice' && React.createElement(PracticeSessionManagement, { token: auth.token, key: "tab-practice" }),
-          
-          // Teammate's new component
           activeTab === 'attendance' && React.createElement(AdminAttendanceManagement, { token: auth.token, key: 'tab-attendance' }),
-          
-          // --- YOUR NEW COMPONENT ---
           activeTab === 'reports' && React.createElement(AttendanceReport, { key: "tab-reports" }),
+          
+          // ---> NEW SYSTEM STATUS CONTENT HERE <---
+          activeTab === 'status' && React.createElement(SystemStatus, { key: "tab-status" }),
 
           activeTab === 'players' && React.createElement('div', { className: 'approvals-tab', key: 'tab-players' },
             React.createElement('h2', null, 'Registered Players'),
