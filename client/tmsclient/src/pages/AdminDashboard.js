@@ -10,6 +10,7 @@ import PracticeSessionManagement from '../components/PracticeSessionManagement';
 import AdminAttendanceManagement from '../components/AdminAttendanceManagement';
 import AttendanceReport from '../components/AttendanceReport';
 import SystemStatus from '../components/SystemStatus';
+import InnerNavbar from '../components/InnerNavbar';
 
 import { API_ENDPOINTS } from '../config/api';
 import '../styles/AdminDashboard.css';
@@ -38,7 +39,6 @@ export default function AdminDashboard() {
   };
   const [pendingRequests, setPendingRequests] = useState([]);
   
-  // Teammate's new State variables for Player Management
   const [players, setPlayers] = useState([]);
   const [playersLoading, setPlayersLoading] = useState(false);
   const [selectedPlayerId, setSelectedPlayerId] = useState(null);
@@ -59,7 +59,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (auth.loading) return;
     if (!auth.isAuthenticated) {
-      navigate('/login');
+      navigate('/');
       return;
     }
     if (!isAdminRole(role)) {
@@ -90,7 +90,6 @@ export default function AdminDashboard() {
     }
   }
 
-  // Teammate's new function
   async function loadPlayers() {
     try {
       setPlayersLoading(true);
@@ -111,7 +110,6 @@ export default function AdminDashboard() {
     }
   }
 
-  // Teammate's new function
   async function openPlayerDetails(playerId) {
     try {
       setPlayersError('');
@@ -138,7 +136,6 @@ export default function AdminDashboard() {
     }
   }
 
-  // Teammate's new function
   function handlePlayerFormChange(event) {
     const { name, value, type, checked } = event.target;
     setPlayerForm(prev => ({
@@ -147,7 +144,6 @@ export default function AdminDashboard() {
     }));
   }
 
-  // Teammate's new function
   async function savePlayerChanges() {
     if (!selectedPlayerId) return;
     try {
@@ -223,214 +219,187 @@ export default function AdminDashboard() {
 
   function handleLogout() {
     auth.logout();
-    navigate('/login');
+    navigate('/');
   }
 
   function handleTournamentAdded() {
     setTournamentRefresh(prev => prev + 1);
   }
 
+  /* ── Nav items for secondary bar ── */
+  const navItems = [
+    { id: 'tournaments', label: 'Tournaments' },
+    { id: 'calendar', label: 'Calendar' },
+    { id: 'bracket', label: 'Bracket' },
+    { id: 'live-scoring', label: 'Live Score' },
+    { id: 'practice', label: 'Practice' },
+    { id: 'attendance', label: 'Attendance' },
+    { id: 'inventory', label: 'Inventory' },
+    { id: 'approvals', label: 'Approvals' },
+    { id: 'players', label: 'Players' },
+    { id: 'status', label: 'Settings' },
+    { id: 'reports', label: 'Reports' },
+  ];
+
   return React.createElement(
     'div',
     { className: 'admin-dashboard-container' },
 
-    React.createElement(
-      'nav',
-      { className: 'navbar' },
-      React.createElement(
-        'div',
-        { className: 'nav-content' },
-        React.createElement('h1', null, 'Admin Panel'),
+    /* ── Top Navbar ── */
+    React.createElement(InnerNavbar, {
+      title: 'Admin Panel',
+      username: username,
+      backTo: '/',
+      onLogout: handleLogout
+    }),
 
-        React.createElement('div', { className: 'nav-right' },
-          React.createElement('span', { className: 'welcome-text' }, `Welcome, ${username}`),
-
-          React.createElement('button',
-            { className: 'back-btn', onClick: () => navigate('/dashboard') },
-            'Dashboard'
-          ),
-
-          React.createElement('button',
-            { className: 'logout-btn', onClick: handleLogout },
-            'Logout'
-          )
-        )
+    /* ── Secondary Navigation Bar ── */
+    React.createElement('div', { className: 'admin-subnav' },
+      React.createElement('div', { className: 'admin-subnav__inner' },
+        navItems.map(function(item) {
+          return React.createElement('button', {
+            key: item.id,
+            className: 'admin-subnav__item' + (activeTab === item.id ? ' admin-subnav__item--active' : ''),
+            onClick: function() {
+              setActiveTab(item.id);
+              if (item.id === 'players') loadPlayers();
+            }
+          },
+            React.createElement('span', { className: 'admin-subnav__label' }, item.label)
+          );
+        })
       )
     ),
 
-    React.createElement('div', { className: 'admin-content' },
-      React.createElement('div', { className: 'tabs-container' },
-        React.createElement('div', { className: 'tabs-nav' },
-          React.createElement('button',
-            { className: `tab-button ${activeTab === 'tournaments' ? 'active' : ''}`, onClick: () => setActiveTab('tournaments') },
-            'Tournament Management'
-          ),
-          React.createElement('button',
-            { className: `tab-button ${activeTab === 'calendar' ? 'active' : ''}`, onClick: () => setActiveTab('calendar') },
-            'Tournament Calendar'
-          ),
-          React.createElement('button',
-            { className: `tab-button ${activeTab === 'approvals' ? 'active' : ''}`, onClick: () => setActiveTab('approvals') },
-            'Player Approvals'
-          ),
-          React.createElement('button',
-            { className: `tab-button ${activeTab === 'bracket' ? 'active' : ''}`, onClick: () => setActiveTab('bracket') },
-            'Tournament Bracket'
-          ),
-          React.createElement('button',
-            { className: `tab-button ${activeTab === 'live-scoring' ? 'active' : ''}`, onClick: () => setActiveTab('live-scoring') },
-            'Live Scoring'
-          ),
-          React.createElement('button',
-            { className: `tab-button ${activeTab === 'inventory' ? 'active' : ''}`, onClick: () => setActiveTab('inventory') },
-            'Inventory'
-          ),
-          React.createElement('button',
-            { className: `tab-button ${activeTab === 'practice' ? 'active' : ''}`, onClick: () => setActiveTab('practice') },
-            'Practice Sessions'
-          ),
-          React.createElement('button',
-            { className: `tab-button ${activeTab === 'attendance' ? 'active' : ''}`, onClick: () => setActiveTab('attendance') },
-            'Mark Attendance' 
-          ),
-          React.createElement('button',
-            { className: `tab-button ${activeTab === 'players' ? 'active' : ''}`, onClick: () => { setActiveTab('players'); loadPlayers(); } },
-            'Players'
-          ),
-          React.createElement('button',
-            { className: `tab-button ${activeTab === 'reports' ? 'active' : ''}`, onClick: () => setActiveTab('reports') },
-            'Attendance Reports'
-          ),
-          // ---> NEW SYSTEM STATUS TAB BUTTON HERE <---
-          React.createElement('button',
-            { className: `tab-button ${activeTab === 'status' ? 'active' : ''}`, onClick: () => setActiveTab('status') },
-            'System Status'
-          )
-        ),
+    /* ── Page Content ── */
+    React.createElement('div', { className: 'admin-page-content' },
 
-        React.createElement('div', { className: 'tabs-content' }, [
-          activeTab === 'tournaments' && React.createElement(TournamentManagement, { token: auth.token, onTournamentAdded: handleTournamentAdded, key: "tab-tournaments" }),
-          activeTab === 'calendar' && React.createElement(TournamentCalendar, { token: auth.token, refreshTrigger: tournamentRefresh, key: "tab-calendar" }),
-          activeTab === 'bracket' && React.createElement(TournamentBracket, { token: auth.token, key: "tab-bracket", onOpenLiveScoring: () => setActiveTab('live-scoring') }),
-          activeTab === 'live-scoring' && React.createElement(LiveScoring, { key: "tab-live-scoring" }),
-          activeTab === 'inventory' && React.createElement(InventoryPage, { isAdmin: true, userId: auth.user?.id, key: "tab-inventory" }),
-          activeTab === 'practice' && React.createElement(PracticeSessionManagement, { token: auth.token, key: "tab-practice" }),
-          activeTab === 'attendance' && React.createElement(AdminAttendanceManagement, { token: auth.token, key: 'tab-attendance' }),
-          activeTab === 'reports' && React.createElement(AttendanceReport, { key: "tab-reports" }),
-          
-          // ---> NEW SYSTEM STATUS CONTENT HERE <---
-          activeTab === 'status' && React.createElement(SystemStatus, { key: "tab-status" }),
+      activeTab === 'tournaments' && React.createElement(TournamentManagement, { token: auth.token, onTournamentAdded: handleTournamentAdded, key: 'tab-tournaments' }),
+      activeTab === 'calendar' && React.createElement(TournamentCalendar, { token: auth.token, refreshTrigger: tournamentRefresh, key: 'tab-calendar' }),
+      activeTab === 'bracket' && React.createElement(TournamentBracket, { token: auth.token, key: 'tab-bracket', onOpenLiveScoring: function() { setActiveTab('live-scoring'); } }),
+      activeTab === 'live-scoring' && React.createElement(LiveScoring, { key: 'tab-live-scoring' }),
+      activeTab === 'inventory' && React.createElement(InventoryPage, { isAdmin: true, userId: auth.user?.id, key: 'tab-inventory' }),
+      activeTab === 'practice' && React.createElement(PracticeSessionManagement, { token: auth.token, key: 'tab-practice' }),
+      activeTab === 'attendance' && React.createElement(AdminAttendanceManagement, { token: auth.token, key: 'tab-attendance' }),
+      activeTab === 'reports' && React.createElement(AttendanceReport, { key: 'tab-reports' }),
+      activeTab === 'status' && React.createElement(SystemStatus, { key: "tab-status" }),
 
-          activeTab === 'players' && React.createElement('div', { className: 'approvals-tab', key: 'tab-players' },
-            React.createElement('h2', null, 'Registered Players'),
-            playersError && React.createElement('div', { className: 'error-message' }, playersError),
-            playersSuccess && React.createElement('div', { className: 'success-message' }, playersSuccess),
-            playersLoading
-              ? React.createElement('div', { className: 'loading' }, 'Loading players...')
-              : React.createElement('div', { className: 'players-management-grid' },
-                React.createElement('div', { className: 'requests-table' },
-                  React.createElement('table', null,
-                    React.createElement('thead', null,
-                      React.createElement('tr', null,
-                        React.createElement('th', null, 'Username'),
-                        React.createElement('th', null, 'Email'),
-                        React.createElement('th', null, 'Identity Number'),
-                        React.createElement('th', null, 'Status')
-                      )
-                    ),
-                    React.createElement('tbody', null,
-                      (players || []).map(player =>
-                        React.createElement('tr', { key: player.id, onClick: () => openPlayerDetails(player.id), className: selectedPlayerId === player.id ? 'selected-row' : '' },
-                          React.createElement('td', null, player.username),
-                          React.createElement('td', null, player.email),
-                          React.createElement('td', null, player.identityNumber),
-                          React.createElement('td', null, player.isApproved ? 'Approved' : 'Pending')
-                        )
-                      )
-                    )
+      activeTab === 'players' && React.createElement('div', { className: 'admin-card', key: 'tab-players' },
+        React.createElement('h2', { className: 'admin-card__title' }, 'Registered Players'),
+        playersError && React.createElement('div', { className: 'error-message' }, playersError),
+        playersSuccess && React.createElement('div', { className: 'success-message' }, playersSuccess),
+        playersLoading
+          ? React.createElement('div', { className: 'loading' }, 'Loading players...')
+          : React.createElement('div', { className: 'players-management-grid' },
+            React.createElement('div', { className: 'requests-table scrollable' },
+              React.createElement('table', null,
+                React.createElement('thead', null,
+                  React.createElement('tr', null,
+                    React.createElement('th', null, 'Username'),
+                    React.createElement('th', null, 'Email'),
+                    React.createElement('th', null, 'Identity Number'),
+                    React.createElement('th', null, 'Status')
                   )
                 ),
-                React.createElement('div', { className: 'player-details-card' },
-                  !selectedPlayer
-                    ? React.createElement('p', null, 'Select a player to view and edit full details.')
-                    : React.createElement('div', null,
-                      React.createElement('h3', null, `Edit Player #${selectedPlayer.id}`),
-                      React.createElement('div', { className: 'player-form-grid' },
-                        React.createElement('label', null, 'Username'),
-                        React.createElement('input', { name: 'username', value: playerForm.username, onChange: handlePlayerFormChange }),
-                        React.createElement('label', null, 'Email'),
-                        React.createElement('input', { name: 'email', value: playerForm.email, onChange: handlePlayerFormChange }),
-                        React.createElement('label', null, 'Identity Number'),
-                        React.createElement('input', { name: 'identityNumber', value: playerForm.identityNumber, onChange: handlePlayerFormChange }),
-                        React.createElement('label', null, 'Contact Number'),
-                        React.createElement('input', { name: 'contactNumber', value: playerForm.contactNumber, onChange: handlePlayerFormChange }),
-                        React.createElement('label', null, 'Address'),
-                        React.createElement('textarea', { name: 'address', value: playerForm.address, onChange: handlePlayerFormChange, rows: 3 }),
-                        React.createElement('label', null, 'Role'),
-                        React.createElement('select', { name: 'role', value: playerForm.role, onChange: handlePlayerFormChange }, [
-                          React.createElement('option', { key: 'role-1', value: 1 }, 'SystemAdmin'),
-                          React.createElement('option', { key: 'role-2', value: 2 }, 'Admin'),
-                          React.createElement('option', { key: 'role-3', value: 3 }, 'Player'),
-                          React.createElement('option', { key: 'role-4', value: 4 }, 'PendingPlayer')
-                        ]),
-                        React.createElement('label', null, 'Reset Password (optional)'),
-                        React.createElement('input', { name: 'newPassword', value: playerForm.newPassword, onChange: handlePlayerFormChange, placeholder: 'Leave blank to keep current password' }),
-                        React.createElement('label', { className: 'checkbox-row' },
-                          React.createElement('input', { type: 'checkbox', name: 'isApproved', checked: playerForm.isApproved, onChange: handlePlayerFormChange }),
-                          ' Approved'
-                        ),
-                        React.createElement('div', { className: 'readonly-meta' },
-                          React.createElement('strong', null, 'Created: '),
-                          selectedPlayer.createdAt ? new Date(selectedPlayer.createdAt).toLocaleString() : '-'
-                        ),
-                        React.createElement('div', { className: 'readonly-meta' },
-                          React.createElement('strong', null, 'Approved At: '),
-                          selectedPlayer.approvedAt ? new Date(selectedPlayer.approvedAt).toLocaleString() : '-'
-                        ),
-                        React.createElement('button', { className: 'approve-btn', onClick: savePlayerChanges, disabled: savingPlayer },
-                          savingPlayer ? 'Saving...' : 'Save Player Details'
-                        )
-                      )
-                    )
+                React.createElement('tbody', null,
+                  (players || []).map(function(player) {
+                    return React.createElement('tr', {
+                      key: player.id,
+                      onClick: function() { openPlayerDetails(player.id); },
+                      className: selectedPlayerId === player.id ? 'selected-row' : ''
+                    },
+                      React.createElement('td', null, player.username),
+                      React.createElement('td', null, player.email),
+                      React.createElement('td', null, player.identityNumber),
+                      React.createElement('td', null, player.isApproved ? 'Approved' : 'Pending')
+                    );
+                  })
                 )
               )
-          ),
-
-          activeTab === 'approvals' && React.createElement('div', { className: 'approvals-tab', key: "tab-approvals" },
-            React.createElement('h2', null, 'Pending Registration Requests'),
-            error && React.createElement('div', { className: 'error-message' }, error),
-            successMessage && React.createElement('div', { className: 'success-message' }, successMessage),
-            loading
-              ? React.createElement('div', { className: 'loading' }, 'Loading...')
-              : pendingRequests.length === 0
-                ? React.createElement('div', { className: 'no-requests' }, React.createElement('p', null, 'No pending registration requests'))
-                : React.createElement('div', { className: 'requests-table' },
-                  React.createElement('table', null,
-                    React.createElement('thead', null,
-                      React.createElement('tr', null,
-                        React.createElement('th', null, 'Username'), React.createElement('th', null, 'Identity Number'),
-                        React.createElement('th', null, 'Email'), React.createElement('th', null, 'Requested Date'),
-                        React.createElement('th', null, 'Actions')
-                      )
+            ),
+            React.createElement('div', { className: 'player-details-card' },
+              !selectedPlayer
+                ? React.createElement('p', null, 'Select a player to view and edit full details.')
+                : React.createElement('div', null,
+                  React.createElement('h3', null, 'Edit Player #' + selectedPlayer.id),
+                  React.createElement('div', { className: 'player-form-grid' },
+                    React.createElement('label', null, 'Username'),
+                    React.createElement('input', { name: 'username', value: playerForm.username, onChange: handlePlayerFormChange }),
+                    React.createElement('label', null, 'Email'),
+                    React.createElement('input', { name: 'email', value: playerForm.email, onChange: handlePlayerFormChange }),
+                    React.createElement('label', null, 'Identity Number'),
+                    React.createElement('input', { name: 'identityNumber', value: playerForm.identityNumber, onChange: handlePlayerFormChange }),
+                    React.createElement('label', null, 'Contact Number'),
+                    React.createElement('input', { name: 'contactNumber', value: playerForm.contactNumber, onChange: handlePlayerFormChange }),
+                    React.createElement('label', null, 'Address'),
+                    React.createElement('textarea', { name: 'address', value: playerForm.address, onChange: handlePlayerFormChange, rows: 3 }),
+                    React.createElement('label', null, 'Role'),
+                    React.createElement('select', { name: 'role', value: playerForm.role, onChange: handlePlayerFormChange }, [
+                      React.createElement('option', { key: 'role-1', value: 1 }, 'SystemAdmin'),
+                      React.createElement('option', { key: 'role-2', value: 2 }, 'Admin'),
+                      React.createElement('option', { key: 'role-3', value: 3 }, 'Player'),
+                      React.createElement('option', { key: 'role-4', value: 4 }, 'PendingPlayer')
+                    ]),
+                    React.createElement('label', null, 'Reset Password (optional)'),
+                    React.createElement('input', { name: 'newPassword', value: playerForm.newPassword, onChange: handlePlayerFormChange, placeholder: 'Leave blank to keep current password' }),
+                    React.createElement('label', { className: 'checkbox-row' },
+                      React.createElement('input', { type: 'checkbox', name: 'isApproved', checked: playerForm.isApproved, onChange: handlePlayerFormChange }),
+                      ' Approved'
                     ),
-                    React.createElement('tbody', null,
-                      pendingRequests.map(req =>
-                        React.createElement('tr', { key: req.id },
-                          React.createElement('td', null, req.username), React.createElement('td', null, req.identityNumber),
-                          React.createElement('td', null, req.email), React.createElement('td', null, new Date(req.createdAt).toLocaleDateString()),
-                          React.createElement('td', null,
-                            React.createElement('div', { className: 'actions-cell' },
-                              React.createElement('button', { className: 'approve-btn', onClick: () => approve(req.id, req.username) }, 'Approve'),
-                              React.createElement('button', { className: 'reject-btn', onClick: () => reject(req.id, req.username) }, 'Reject')
-                            )
-                          )
-                        )
-                      )
+                    React.createElement('div', { className: 'readonly-meta' },
+                      React.createElement('strong', null, 'Created: '),
+                      selectedPlayer.createdAt ? new Date(selectedPlayer.createdAt).toLocaleString() : '-'
+                    ),
+                    React.createElement('div', { className: 'readonly-meta' },
+                      React.createElement('strong', null, 'Approved At: '),
+                      selectedPlayer.approvedAt ? new Date(selectedPlayer.approvedAt).toLocaleString() : '-'
+                    ),
+                    React.createElement('button', { className: 'approve-btn', onClick: savePlayerChanges, disabled: savingPlayer },
+                      savingPlayer ? 'Saving...' : 'Save Player Details'
                     )
                   )
                 )
+            )
           )
-        ])
+      ),
+
+      activeTab === 'approvals' && React.createElement('div', { className: 'admin-card', key: 'tab-approvals' },
+        React.createElement('h2', { className: 'admin-card__title' }, 'Pending Registration Requests'),
+        error && React.createElement('div', { className: 'error-message' }, error),
+        successMessage && React.createElement('div', { className: 'success-message' }, successMessage),
+        loading
+          ? React.createElement('div', { className: 'loading' }, 'Loading...')
+          : pendingRequests.length === 0
+            ? React.createElement('div', { className: 'no-requests' }, React.createElement('p', null, 'No pending registration requests'))
+            : React.createElement('div', { className: 'requests-table scrollable' },
+                React.createElement('table', null,
+                  React.createElement('thead', null,
+                    React.createElement('tr', null,
+                      React.createElement('th', null, 'Username'),
+                      React.createElement('th', null, 'Identity Number'),
+                      React.createElement('th', null, 'Email'),
+                      React.createElement('th', null, 'Requested Date'),
+                      React.createElement('th', null, 'Actions')
+                    )
+                  ),
+                  React.createElement('tbody', null,
+                    pendingRequests.map(function(req) {
+                      return React.createElement('tr', { key: req.id },
+                        React.createElement('td', { style: { fontWeight: '700' } }, req.username),
+                        React.createElement('td', null, req.identityNumber),
+                        React.createElement('td', null, req.email),
+                        React.createElement('td', null, new Date(req.createdAt).toLocaleDateString()),
+                        React.createElement('td', null,
+                          React.createElement('div', { className: 'actions-cell' },
+                            React.createElement('button', { className: 'approve-btn', onClick: function() { approve(req.id, req.username); } }, 'Approve'),
+                            React.createElement('button', { className: 'reject-btn', onClick: function() { reject(req.id, req.username); } }, 'Reject')
+                          )
+                        )
+                      );
+                    })
+                  )
+                )
+              )
       )
     )
   );

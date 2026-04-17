@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import API_BASE_URL from "../config/api";
 import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import InnerNavbar from "../components/InnerNavbar";
 import InventoryReport from "../components/InventoryReport";
 import "../styles/InventoryPage.css";
 
@@ -39,6 +41,7 @@ function TransactionItem({ tx, fetchUser, onReturn, onApprove, showReturn = true
 
 const InventoryPage = ({ isAdmin, userId }) => {
   const auth = useAuth();
+  const navigate = useNavigate();
   const [inventory, setInventory] = useState([]);
   const [itemName, setItemName] = useState("");
   const [itemQty, setItemQty] = useState(1);
@@ -86,7 +89,6 @@ const InventoryPage = ({ isAdmin, userId }) => {
 
   const fetchUser = async (userIdOrUsername) => {
     if (!userIdOrUsername) return null;
-    // If it's a number, treat as ID, else as username
     if (userCache[userIdOrUsername]) return userCache[userIdOrUsername];
     try {
       let res;
@@ -187,7 +189,6 @@ const InventoryPage = ({ isAdmin, userId }) => {
 
   const handleIssueItem = async () => {
     setIssueError("");
-    // Look up user by username
     let userObj = await fetchUser(playerUsername);
     if (!userObj || !userObj.id) {
       setIssueError("Player username not found.");
@@ -220,6 +221,13 @@ const InventoryPage = ({ isAdmin, userId }) => {
   };
 
   return (
+    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+      <InnerNavbar
+        title="Equipment Inventory"
+        username={auth.user?.username}
+        backTo={isAdmin ? '/admin' : '/dashboard'}
+        onLogout={() => { auth.logout(); navigate('/'); }}
+      />
     <div className="inventory-dashboard">
       <div className="inventory-header">
         <h2>Inventory Management</h2>
@@ -403,6 +411,7 @@ const InventoryPage = ({ isAdmin, userId }) => {
           onClose={() => setShowReport(false)}
         />
       )}
+    </div>
     </div>
   );
 }
