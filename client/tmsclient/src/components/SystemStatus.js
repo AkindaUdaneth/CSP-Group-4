@@ -114,12 +114,12 @@ const SystemStatus = () => {
                         setLoading(false);
                     });
                 },
-                className: 'approve-btn',
-                style: { display: 'flex', alignItems: 'center', gap: '8px', background: '#3b82f6', padding: '8px 16px' },
+                className: 'btn-primary',
+                style: { display: 'flex', alignItems: 'center', gap: '8px', background: '#000040', padding: '8px 16px', border: 'none' },
                 disabled: loading
             },
                 React.createElement(RefreshCw, { size: 16, className: loading ? "spin-animation" : "" }),
-                loading ? 'Checking...' : 'Refresh'
+                loading ? 'Checking...' : 'Refresh Status'
             )
         ),
 
