@@ -57,3 +57,6 @@ temp/
 
 # Local generated framework/runtime folders
 server/tmsserver/net10.0/
+
+node_modules/
+tmsclient/node_modules/
