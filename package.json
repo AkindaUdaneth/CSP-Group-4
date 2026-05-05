@@ -1,5 +1,29 @@
 {
   "dependencies": {
     "react-calendar": "^6.0.0"
+  },
+  "name": "csp-group-4",
+  "version": "1.0.0",
+  "description": "**Group:** Group 04\\\r **Module:** SE3022 Case Study Project (Year 3 Semester 1)\\\r **Members:**\\\r    IT23750210 - K.H.G.A.Udaneth\\\r    IT23575776 - M.S.A.O.Kumara\\\r    IT23645684 - V.N.Jayasinghe\\\r    IT23575608 - H.W.Ranwala",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AkindaUdaneth/CSP-Group-4.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/AkindaUdaneth/CSP-Group-4/issues"
+  },
+  "homepage": "https://github.com/AkindaUdaneth/CSP-Group-4#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^25.6.0"
   }
 }

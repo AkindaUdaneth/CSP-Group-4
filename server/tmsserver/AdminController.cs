@@ -102,6 +102,89 @@ public class AdminController : ControllerBase
     }
 
     /// <summary>
+    /// Approve a registration request
+    /// </summary>
+    [HttpPost("approve-registration-request/{requestId}")]
+    public async Task<IActionResult> ApproveRegistrationRequest(int requestId)
+    {
+        try
+        {
+            var adminIdClaim = User.FindFirst("sub") 
+                ?? User.FindFirst(ClaimTypes.NameIdentifier)
+                ?? User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")
+                ?? User.FindFirst("userId");
+            
+            if (adminIdClaim == null || !int.TryParse(adminIdClaim.Value, out int adminId))
+            {
+                return Unauthorized(new { message = "Unable to identify admin" });
+            }
+
+            var admin = await _userRepository.GetUserByIdAsync(adminId);
+            if (admin?.Role != UserRole.Admin && admin?.Role != UserRole.SystemAdmin)
+            {
+                return Forbid("You don't have permission to approve registration requests");
+            }
+
+            var approved = await _registrationRequestRepository.ApproveRequestAsync(requestId, adminId);
+            
+            if (approved)
+            {
+                return Ok(new { success = true, message = "Registration request approved successfully" });
+            }
+
+            return BadRequest(new { success = false, message = "Failed to approve registration request" });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error approving registration request", error = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Reject a registration request
+    /// </summary>
+    [HttpPost("reject-registration-request/{requestId}")]
+    public async Task<IActionResult> RejectRegistrationRequest(int requestId, [FromBody] RejectRequest request)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(request.Reason))
+            {
+                return BadRequest(new { message = "Rejection reason is required" });
+            }
+
+            var adminIdClaim = User.FindFirst("sub")
+                ?? User.FindFirst(ClaimTypes.NameIdentifier)
+                ?? User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")
+                ?? User.FindFirst("userId");
+            
+            if (adminIdClaim == null || !int.TryParse(adminIdClaim.Value, out int adminId))
+            {
+                return Unauthorized(new { message = "Unable to identify admin" });
+            }
+
+            var admin = await _userRepository.GetUserByIdAsync(adminId);
+            if (admin?.Role != UserRole.Admin && admin?.Role != UserRole.SystemAdmin)
+            {
+                return Forbid("You don't have permission to reject registration requests");
+            }
+
+            var rejected = await _registrationRequestRepository.RejectRequestAsync(requestId, adminId, request.Reason);
+
+            if (rejected)
+            {
+                return Ok(new { success = true, message = "Registration request rejected", reason = request.Reason });
+            }
+
+            return BadRequest(new { success = false, message = "Failed to reject registration request" });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Error rejecting registration request", error = ex.Message });
+        }
+    }
+
+    /// <summary>
     /// Approve a pending player registration
     /// </summary>
     [HttpPost("approve-player/{userId}")]

@@ -79,3 +79,9 @@ temp/
 
 # Local generated framework/runtime folders
 server/tmsserver/net10.0/
+
+# Playwright
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

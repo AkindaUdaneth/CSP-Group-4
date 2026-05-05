@@ -1,0 +1,18 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "https://csp-group-4.vercel.app",
+      "localStorage": [
+        {
+          "name": "token",
+          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiT21pbmR1IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbmFtZWlkZW50aWZpZXIiOiI0Iiwic3ViIjoiNCIsInVzZXJJZCI6IjQiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJQbGF5ZXIiLCJleHAiOjE3NzgwNDQ0NDEsImlzcyI6IlRlbm5pc0FQSSIsImF1ZCI6IlRlbm5pc1VzZXJzIn0.n3LSPB64J2sj2GfxBHW3r80Q1imsO3d3Vaiu7YlvJjw"
+        },
+        {
+          "name": "user",
+          "value": "{\"id\":4,\"username\":\"Omindu\",\"email\":\"omindu@sliit.lk\",\"identityNumber\":\"it23575776\",\"contactNumber\":\"0775558452\",\"address\":\"Address B 1777229380560\",\"role\":\"Player\",\"isApproved\":true,\"approvedAt\":\"2026-03-05T18:30:13.9366667\"}"
+        }
+      ]
+    }
+  ]
+}
