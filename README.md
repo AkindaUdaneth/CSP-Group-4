@@ -80,12 +80,14 @@ The Swagger API documentation will be available at http://localhost:<port>/swagg
 ---
 
 ## Testing
+* Automated API Tests (Postman): Import the TMS Automated Tests collection into Postman to validate the core login and profile update user journeys.
 
-**Unit Tests (Backend):** Navigate to the /tests/Backend.Tests directory and run: dotnet test
-
-**End-to-End Tests (Selenium):** Ensure the application is running locally. Navigate to /tests/E2E and execute the test suite to verify UI workflows.
-
-**Load Testing (JMeter):** Open the /tests/LoadTesting/Attendance_Spike.jmx file in the Apache JMeter GUI to simulate concurrent user traffic.
+* Load Testing (k6): Ensure the backend is running locally. Open a new terminal, navigate to the load testing directory, and execute either the baseline spike test or the data-driven scenario test:
+   ```bash
+   cd tests/LoadTests
+   k6 run attendance-test.js
+   k6 run data-test.js
+   ```
 
 ---
 
